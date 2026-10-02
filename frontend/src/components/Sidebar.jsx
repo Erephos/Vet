@@ -24,7 +24,7 @@ const navItems = [
   { to: '/reportes', label: 'Reportes', icon: BarChart3 },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ abierto = false, onCerrar = () => {} }) {
   const navigate = useNavigate()
 
   function handleLogout() {
@@ -33,7 +33,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${abierto ? ' sidebar-open' : ''}`}>
       <div className="sidebar-brand">
         <svg className="sidebar-paw-icon" viewBox="0 0 100 100" fill="#1ed0a8">
           <ellipse cx="25" cy="35" rx="9" ry="12" transform="rotate(-20 25 35)" />
