@@ -1,19 +1,17 @@
 import { useEffect, useState } from 'react'
-import { ChevronRight, Plus } from 'lucide-react'
+import { Pencil, Trash2, Plus } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleConsultaModal from '../components/DetalleConsultaModal.jsx'
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const FORM_VACIO = { idMascota: '', idVeterinario: '', fechaHora: '', diagnostico: '', costoBase: '' }
 
 function formatearFechaHora(fechaHoraStr) {
   if (!fechaHoraStr) return '—'
   const fecha = new Date(fechaHoraStr)
   return fecha.toLocaleString('es-PE', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
 }
 
@@ -21,6 +19,12 @@ function formatearFechaHora(fechaHoraStr) {
 // datetime-local ya entrega ese formato salvo por los segundos.
 function aLocalDateTime(valorInput) {
   return valorInput ? `${valorInput}:00` : null
+}
+
+// Para precargar el input datetime-local al editar (quita segundos/zona)
+function aInputDatetimeLocal(fechaHoraStr) {
+  if (!fechaHoraStr) return ''
+  return fechaHoraStr.slice(0, 16)
 }
 
 export default function Consultas() {
@@ -33,15 +37,14 @@ export default function Consultas() {
   const [error, setError] = useState('')
 
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [editandoId, setEditandoId] = useState(null)
   const [guardando, setGuardando] = useState(false)
   const [errorForm, setErrorForm] = useState('')
-  const [form, setForm] = useState({
-    idMascota: '',
-    idVeterinario: '',
-    fechaHora: '',
-    diagnostico: '',
-    costoBase: '',
-  })
+  const [form, setForm] = useState(FORM_VACIO)
+
+  const [consultaAEliminar, setConsultaAEliminar] = useState(null)
+  const [eliminando, setEliminando] = useState(false)
+  const [errorEliminar, setErrorEliminar] = useState('')
 
   const [consultaSeleccionada, setConsultaSeleccionada] = useState(null)
 
@@ -85,8 +88,23 @@ export default function Consultas() {
     )
   })
 
-  function abrirModal() {
-    setForm({ idMascota: '', idVeterinario: '', fechaHora: '', diagnostico: '', costoBase: '' })
+  function abrirModalAgregar() {
+    setEditandoId(null)
+    setForm(FORM_VACIO)
+    setErrorForm('')
+    setModalAbierto(true)
+  }
+
+  function abrirModalEditar(c, e) {
+    e.stopPropagation()
+    setEditandoId(c.idConsulta)
+    setForm({
+      idMascota: c.mascota?.idMascota ?? '',
+      idVeterinario: c.veterinario?.idVeterinario ?? '',
+      fechaHora: aInputDatetimeLocal(c.fechaHora),
+      diagnostico: c.diagnostico ?? '',
+      costoBase: String(c.costoBase ?? ''),
+    })
     setErrorForm('')
     setModalAbierto(true)
   }
@@ -100,7 +118,7 @@ export default function Consultas() {
       return
     }
 
-    const nuevaConsulta = {
+    const datosConsulta = {
       mascota: { idMascota: Number(form.idMascota) },
       veterinario: { idVeterinario: Number(form.idVeterinario) },
       fechaHora: aLocalDateTime(form.fechaHora),
@@ -110,21 +128,46 @@ export default function Consultas() {
 
     setGuardando(true)
     try {
-      const response = await fetch(`${API_BASE}/consultas`, {
-        method: 'POST',
+      const esEdicion = editandoId != null
+      const url = esEdicion ? `${API_BASE}/consultas/${editandoId}` : `${API_BASE}/consultas`
+      const response = await fetch(url, {
+        method: esEdicion ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevaConsulta),
+        body: JSON.stringify(datosConsulta),
       })
 
-      if (!response.ok) throw new Error('El backend respondió con error al crear la consulta')
+      if (!response.ok) throw new Error('El backend respondió con error')
 
       setModalAbierto(false)
       await cargarDatos()
     } catch (err) {
-      console.error('Error creando consulta:', err)
+      console.error('Error guardando consulta:', err)
       setErrorForm('No se pudo guardar la consulta. Revisa los datos e inténtalo de nuevo.')
     } finally {
       setGuardando(false)
+    }
+  }
+
+  function pedirEliminar(c, e) {
+    e.stopPropagation()
+    setErrorEliminar('')
+    setConsultaAEliminar(c)
+  }
+
+  async function confirmarEliminar() {
+    setEliminando(true)
+    setErrorEliminar('')
+    try {
+      const res = await fetch(`${API_BASE}/consultas/${consultaAEliminar.idConsulta}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+
+      setConsultaAEliminar(null)
+      await cargarDatos()
+    } catch (err) {
+      console.error('Error eliminando consulta:', err)
+      setErrorEliminar('No se pudo eliminar. Si esta consulta tiene servicios aplicados, primero quítalos desde su detalle.')
+    } finally {
+      setEliminando(false)
     }
   }
 
@@ -135,7 +178,7 @@ export default function Consultas() {
           <h1 className="page-title">Consultas</h1>
           <p className="page-subtitle">{cargando ? '…' : `${consultas.length} registros`}</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModal}>
+        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
           <Plus size={16} /> Agregar consulta
         </button>
       </div>
@@ -181,7 +224,16 @@ export default function Consultas() {
                 <td>{c.mascota?.nombre || '—'}</td>
                 <td>{c.veterinario?.nombre || '—'}</td>
                 <td>S/ {Number(c.costoBase ?? 0).toFixed(2)}</td>
-                <td className="row-chevron"><ChevronRight size={18} /></td>
+                <td>
+                  <div className="row-actions">
+                    <button type="button" className="icon-btn" onClick={(e) => abrirModalEditar(c, e)} aria-label="Editar">
+                      <Pencil size={16} />
+                    </button>
+                    <button type="button" className="icon-btn icon-btn-danger" onClick={(e) => pedirEliminar(c, e)} aria-label="Eliminar">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -189,7 +241,7 @@ export default function Consultas() {
       </div>
 
       {modalAbierto && (
-        <Modal titulo="Agregar consulta" onClose={() => setModalAbierto(false)}>
+        <Modal titulo={editandoId != null ? 'Editar consulta' : 'Agregar consulta'} onClose={() => setModalAbierto(false)}>
           <form onSubmit={handleSubmit} className="modal-form">
             <div className="form-group">
               <label htmlFor="mascotaConsulta">Mascota</label>
@@ -263,10 +315,21 @@ export default function Consultas() {
             {errorForm && <p className="form-message form-message-error">{errorForm}</p>}
 
             <button type="submit" className="btn-submit" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Guardar consulta'}
+              {guardando ? 'Guardando...' : editandoId != null ? 'Guardar cambios' : 'Guardar consulta'}
             </button>
           </form>
         </Modal>
+      )}
+
+      {consultaAEliminar && (
+        <ConfirmModal
+          titulo="Eliminar consulta"
+          mensaje={`¿Seguro que quieres eliminar la consulta de "${consultaAEliminar.mascota?.nombre ?? 'esta mascota'}"? Esta acción no se puede deshacer.`}
+          error={errorEliminar}
+          confirmando={eliminando}
+          onConfirm={confirmarEliminar}
+          onCancel={() => setConsultaAEliminar(null)}
+        />
       )}
 
       {consultaSeleccionada && (

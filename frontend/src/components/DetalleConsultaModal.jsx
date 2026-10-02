@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import Modal from './Modal.jsx'
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 export default function DetalleConsultaModal({ consulta, servicios, onClose, onCambio }) {
   const [detalles, setDetalles] = useState([])
@@ -35,6 +35,19 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
 
   const costoServicios = detalles.reduce((suma, d) => suma + Number(d.servicio?.precio ?? 0), 0)
   const costoTotal = Number(consulta.costoBase ?? 0) + costoServicios
+
+  async function handleEliminarDetalle(idDetalle) {
+    try {
+      const res = await fetch(`${API_BASE}/detalle-consulta-servicio/${idDetalle}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+
+      await cargarDetalles()
+      onCambio?.()
+    } catch (err) {
+      console.error('Error eliminando servicio aplicado:', err)
+      setError('No se pudo quitar ese servicio. Inténtalo de nuevo.')
+    }
+  }
 
   async function handleAgregarServicio(e) {
     e.preventDefault()
@@ -97,7 +110,17 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
                   <div className="today-item-title">{d.servicio?.nombreServicio ?? 'Servicio'}</div>
                   {d.observaciones && <div className="today-item-sub">{d.observaciones}</div>}
                 </div>
-                <span className="servicio-precio">S/ {Number(d.servicio?.precio ?? 0).toFixed(2)}</span>
+                <div className="servicio-aplicado-right">
+                  <span className="servicio-precio">S/ {Number(d.servicio?.precio ?? 0).toFixed(2)}</span>
+                  <button
+                    type="button"
+                    className="icon-btn icon-btn-danger"
+                    onClick={() => handleEliminarDetalle(d.idDetalle)}
+                    aria-label="Quitar servicio"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

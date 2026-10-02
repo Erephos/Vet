@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
-import { ChevronRight, Plus } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
+import DetalleMascotaModal from '../components/DetalleMascotaModal.jsx'
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+
+const FORM_VACIO = { nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' }
 
 function calcularEdad(fechaNacimiento) {
   if (!fechaNacimiento) return '—'
@@ -23,9 +27,16 @@ export default function Mascotas() {
   const [error, setError] = useState('')
 
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [editandoId, setEditandoId] = useState(null)
   const [guardando, setGuardando] = useState(false)
   const [errorForm, setErrorForm] = useState('')
-  const [form, setForm] = useState({ nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' })
+  const [form, setForm] = useState(FORM_VACIO)
+
+  const [mascotaAEliminar, setMascotaAEliminar] = useState(null)
+  const [eliminando, setEliminando] = useState(false)
+  const [errorEliminar, setErrorEliminar] = useState('')
+
+  const [mascotaDetalle, setMascotaDetalle] = useState(null)
 
   async function cargarDatos() {
     setCargando(true)
@@ -65,8 +76,22 @@ export default function Mascotas() {
     )
   })
 
-  function abrirModal() {
-    setForm({ nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' })
+  function abrirModalAgregar() {
+    setEditandoId(null)
+    setForm(FORM_VACIO)
+    setErrorForm('')
+    setModalAbierto(true)
+  }
+
+  function abrirModalEditar(m, e) {
+    e.stopPropagation()
+    setEditandoId(m.idMascota)
+    setForm({
+      nombre: m.nombre,
+      idDueno: m.dueno?.idDueno ?? '',
+      idRaza: m.raza?.idRaza ?? '',
+      fechaNacimiento: m.fechaNacimiento ?? '',
+    })
     setErrorForm('')
     setModalAbierto(true)
   }
@@ -80,7 +105,7 @@ export default function Mascotas() {
       return
     }
 
-    const nuevaMascota = {
+    const datosMascota = {
       nombre: form.nombre,
       dueno: { idDueno: Number(form.idDueno) },
       raza: { idRaza: Number(form.idRaza) },
@@ -89,31 +114,51 @@ export default function Mascotas() {
 
     setGuardando(true)
     try {
-      const response = await fetch(`${API_BASE}/mascotas`, {
-        method: 'POST',
+      const esEdicion = editandoId != null
+      const url = esEdicion ? `${API_BASE}/mascotas/${editandoId}` : `${API_BASE}/mascotas`
+      const response = await fetch(url, {
+        method: esEdicion ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevaMascota),
+        body: JSON.stringify(datosMascota),
       })
 
-      if (!response.ok) throw new Error('El backend respondió con error al crear la mascota')
+      if (!response.ok) throw new Error('El backend respondió con error')
 
       setModalAbierto(false)
       await cargarDatos()
     } catch (err) {
-      console.error('Error creando mascota:', err)
+      console.error('Error guardando mascota:', err)
       setErrorForm('No se pudo guardar la mascota. Revisa los datos e inténtalo de nuevo.')
     } finally {
       setGuardando(false)
     }
   }
 
+  function pedirEliminar(m, e) {
+    e.stopPropagation()
+    setErrorEliminar('')
+    setMascotaAEliminar(m)
+  }
+
+  async function confirmarEliminar() {
+    setEliminando(true)
+    setErrorEliminar('')
+    try {
+      const res = await fetch(`${API_BASE}/mascotas/${mascotaAEliminar.idMascota}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+
+      setMascotaAEliminar(null)
+      await cargarDatos()
+    } catch (err) {
+      console.error('Error eliminando mascota:', err)
+      setErrorEliminar('No se pudo eliminar. Si esta mascota tiene consultas registradas, primero elimínalas.')
+    } finally {
+      setEliminando(false)
+    }
+  }
+
   function iniciales(nombre) {
-    return nombre
-      .split(' ')
-      .map((p) => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase()
+    return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
   }
 
   return (
@@ -123,7 +168,7 @@ export default function Mascotas() {
           <h1 className="page-title">Mascotas</h1>
           <p className="page-subtitle">{cargando ? '…' : `${mascotas.length} registros`}</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModal}>
+        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
           <Plus size={16} /> Agregar mascota
         </button>
       </div>
@@ -160,7 +205,7 @@ export default function Mascotas() {
             )}
 
             {mascotasFiltradas.map((m) => (
-              <tr key={m.idMascota} className="data-row">
+              <tr key={m.idMascota} className="data-row data-row-clickable" onClick={() => setMascotaDetalle(m)}>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar">{iniciales(m.nombre)}</span>
@@ -170,7 +215,16 @@ export default function Mascotas() {
                 <td>{m.raza?.nombreRaza || '—'}</td>
                 <td>{m.dueno?.nombre || '—'}</td>
                 <td>{calcularEdad(m.fechaNacimiento)}</td>
-                <td className="row-chevron"><ChevronRight size={18} /></td>
+                <td>
+                  <div className="row-actions">
+                    <button type="button" className="icon-btn" onClick={(e) => abrirModalEditar(m, e)} aria-label="Editar">
+                      <Pencil size={16} />
+                    </button>
+                    <button type="button" className="icon-btn icon-btn-danger" onClick={(e) => pedirEliminar(m, e)} aria-label="Eliminar">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -178,7 +232,7 @@ export default function Mascotas() {
       </div>
 
       {modalAbierto && (
-        <Modal titulo="Agregar mascota" onClose={() => setModalAbierto(false)}>
+        <Modal titulo={editandoId != null ? 'Editar mascota' : 'Agregar mascota'} onClose={() => setModalAbierto(false)}>
           <form onSubmit={handleSubmit} className="modal-form">
             <div className="form-group">
               <label htmlFor="nombreMascota">Nombre</label>
@@ -240,10 +294,25 @@ export default function Mascotas() {
             {errorForm && <p className="form-message form-message-error">{errorForm}</p>}
 
             <button type="submit" className="btn-submit" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Guardar mascota'}
+              {guardando ? 'Guardando...' : editandoId != null ? 'Guardar cambios' : 'Guardar mascota'}
             </button>
           </form>
         </Modal>
+      )}
+
+      {mascotaAEliminar && (
+        <ConfirmModal
+          titulo="Eliminar mascota"
+          mensaje={`¿Seguro que quieres eliminar a "${mascotaAEliminar.nombre}"? Esta acción no se puede deshacer.`}
+          error={errorEliminar}
+          confirmando={eliminando}
+          onConfirm={confirmarEliminar}
+          onCancel={() => setMascotaAEliminar(null)}
+        />
+      )}
+
+      {mascotaDetalle && (
+        <DetalleMascotaModal mascota={mascotaDetalle} onClose={() => setMascotaDetalle(null)} />
       )}
     </div>
   )

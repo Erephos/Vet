@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronRight, Plus } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
+import ConfirmModal from '../components/ConfirmModal.jsx'
+import DetalleDuenoModal from '../components/DetalleDuenoModal.jsx'
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+
+const FORM_VACIO = { nombre: '', telefono: '', direccion: '' }
 
 export default function Duenos() {
   const [duenos, setDuenos] = useState([])
@@ -11,10 +15,18 @@ export default function Duenos() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
+  // Alta / edición comparten el mismo modal: si hay idDueno, es edición (PUT)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [editandoId, setEditandoId] = useState(null)
   const [guardando, setGuardando] = useState(false)
   const [errorForm, setErrorForm] = useState('')
-  const [form, setForm] = useState({ nombre: '', telefono: '', direccion: '' })
+  const [form, setForm] = useState(FORM_VACIO)
+
+  const [duenoAEliminar, setDuenoAEliminar] = useState(null)
+  const [eliminando, setEliminando] = useState(false)
+  const [errorEliminar, setErrorEliminar] = useState('')
+
+  const [duenoDetalle, setDuenoDetalle] = useState(null)
 
   async function cargarDatos() {
     setCargando(true)
@@ -42,7 +54,6 @@ export default function Duenos() {
     cargarDatos()
   }, [])
 
-  // Cuenta mascotas por dueño sin tener que pedirlo al backend uno por uno
   const cantidadMascotasPorDueno = useMemo(() => {
     const conteo = {}
     for (const m of mascotas) {
@@ -62,16 +73,20 @@ export default function Duenos() {
   })
 
   function iniciales(nombre) {
-    return nombre
-      .split(' ')
-      .map((p) => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase()
+    return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
   }
 
-  function abrirModal() {
-    setForm({ nombre: '', telefono: '', direccion: '' })
+  function abrirModalAgregar() {
+    setEditandoId(null)
+    setForm(FORM_VACIO)
+    setErrorForm('')
+    setModalAbierto(true)
+  }
+
+  function abrirModalEditar(d, e) {
+    e.stopPropagation()
+    setEditandoId(d.idDueno)
+    setForm({ nombre: d.nombre, telefono: d.telefono ?? '', direccion: d.direccion ?? '' })
     setErrorForm('')
     setModalAbierto(true)
   }
@@ -87,21 +102,46 @@ export default function Duenos() {
 
     setGuardando(true)
     try {
-      const response = await fetch(`${API_BASE}/duenos`, {
-        method: 'POST',
+      const esEdicion = editandoId != null
+      const url = esEdicion ? `${API_BASE}/duenos/${editandoId}` : `${API_BASE}/duenos`
+      const response = await fetch(url, {
+        method: esEdicion ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
 
-      if (!response.ok) throw new Error('El backend respondió con error al crear el dueño')
+      if (!response.ok) throw new Error('El backend respondió con error')
 
       setModalAbierto(false)
       await cargarDatos()
     } catch (err) {
-      console.error('Error creando dueño:', err)
+      console.error('Error guardando dueño:', err)
       setErrorForm('No se pudo guardar el dueño. Revisa los datos e inténtalo de nuevo.')
     } finally {
       setGuardando(false)
+    }
+  }
+
+  function pedirEliminar(d, e) {
+    e.stopPropagation()
+    setErrorEliminar('')
+    setDuenoAEliminar(d)
+  }
+
+  async function confirmarEliminar() {
+    setEliminando(true)
+    setErrorEliminar('')
+    try {
+      const res = await fetch(`${API_BASE}/duenos/${duenoAEliminar.idDueno}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+
+      setDuenoAEliminar(null)
+      await cargarDatos()
+    } catch (err) {
+      console.error('Error eliminando dueño:', err)
+      setErrorEliminar('No se pudo eliminar. Si este dueño tiene mascotas registradas, primero elimínalas o cámbialas de dueño.')
+    } finally {
+      setEliminando(false)
     }
   }
 
@@ -112,7 +152,7 @@ export default function Duenos() {
           <h1 className="page-title">Dueños</h1>
           <p className="page-subtitle">{cargando ? '…' : `${duenos.length} registros`}</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModal}>
+        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
           <Plus size={16} /> Agregar dueño
         </button>
       </div>
@@ -141,19 +181,15 @@ export default function Duenos() {
           </thead>
           <tbody>
             {cargando && (
-              <tr>
-                <td colSpan={5} className="empty-hint">Cargando…</td>
-              </tr>
+              <tr><td colSpan={5} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && duenosFiltrados.length === 0 && (
-              <tr>
-                <td colSpan={5} className="empty-hint">No se encontraron dueños.</td>
-              </tr>
+              <tr><td colSpan={5} className="empty-hint">No se encontraron dueños.</td></tr>
             )}
 
             {duenosFiltrados.map((d) => (
-              <tr key={d.idDueno} className="data-row">
+              <tr key={d.idDueno} className="data-row data-row-clickable" onClick={() => setDuenoDetalle(d)}>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar">{iniciales(d.nombre)}</span>
@@ -165,7 +201,16 @@ export default function Duenos() {
                 <td>
                   <span className="badge-count">{cantidadMascotasPorDueno[d.idDueno] ?? 0}</span>
                 </td>
-                <td className="row-chevron"><ChevronRight size={18} /></td>
+                <td>
+                  <div className="row-actions">
+                    <button type="button" className="icon-btn" onClick={(e) => abrirModalEditar(d, e)} aria-label="Editar">
+                      <Pencil size={16} />
+                    </button>
+                    <button type="button" className="icon-btn icon-btn-danger" onClick={(e) => pedirEliminar(d, e)} aria-label="Eliminar">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -173,7 +218,7 @@ export default function Duenos() {
       </div>
 
       {modalAbierto && (
-        <Modal titulo="Agregar dueño" onClose={() => setModalAbierto(false)}>
+        <Modal titulo={editandoId != null ? 'Editar dueño' : 'Agregar dueño'} onClose={() => setModalAbierto(false)}>
           <form onSubmit={handleSubmit} className="modal-form">
             <div className="form-group">
               <label htmlFor="nombreDueno">Nombre</label>
@@ -212,10 +257,25 @@ export default function Duenos() {
             {errorForm && <p className="form-message form-message-error">{errorForm}</p>}
 
             <button type="submit" className="btn-submit" disabled={guardando}>
-              {guardando ? 'Guardando...' : 'Guardar dueño'}
+              {guardando ? 'Guardando...' : editandoId != null ? 'Guardar cambios' : 'Guardar dueño'}
             </button>
           </form>
         </Modal>
+      )}
+
+      {duenoAEliminar && (
+        <ConfirmModal
+          titulo="Eliminar dueño"
+          mensaje={`¿Seguro que quieres eliminar a "${duenoAEliminar.nombre}"? Esta acción no se puede deshacer.`}
+          error={errorEliminar}
+          confirmando={eliminando}
+          onConfirm={confirmarEliminar}
+          onCancel={() => setDuenoAEliminar(null)}
+        />
+      )}
+
+      {duenoDetalle && (
+        <DetalleDuenoModal dueno={duenoDetalle} mascotas={mascotas} onClose={() => setDuenoDetalle(null)} />
       )}
     </div>
   )
