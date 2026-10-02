@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import Modal from './Modal.jsx'
 
-const BASE_URL = import.meta.env.vite.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function DetalleConsultaModal({ consulta, servicios, onClose, onCambio }) {
   const [detalles, setDetalles] = useState([])

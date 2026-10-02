@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const API_BASE = import.meta.env.vite.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export default function Reportes() {
   const [consultas, setConsultas] = useState([])

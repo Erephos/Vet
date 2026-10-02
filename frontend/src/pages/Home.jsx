@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { FileEdit, PawPrint, User, CalendarDays, Plus } from 'lucide-react'
 import { obtenerSesion } from '../lib/session.js'
 
-const API_BASE = import.meta.env.vite.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 function esHoy(fechaHoraStr) {
   if (!fechaHoraStr) return false

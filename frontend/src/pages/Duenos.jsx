@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ChevronRight, Plus } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 
-const API_BASE = import.meta.env.vite.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export default function Duenos() {
   const [duenos, setDuenos] = useState([])
