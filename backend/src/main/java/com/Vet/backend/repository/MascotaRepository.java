@@ -4,8 +4,10 @@ import com.Vet.backend.model.Mascota;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface MascotaRepository extends JpaRepository<Mascota, Long> {
-    // Puedes agregar consultas personalizadas aquí, ej:
-    // List<Mascota> findByDuenoId(Long duenoId);
+public interface MascotaRepository extends JpaRepository<Mascota, Integer> {
+
+    List<Mascota> findByDueno_IdDueno(Integer idDueno);
 }
