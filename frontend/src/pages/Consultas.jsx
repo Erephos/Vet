@@ -3,7 +3,7 @@ import { ChevronRight, Plus } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import DetalleConsultaModal from '../components/DetalleConsultaModal.jsx'
 
-const API_BASE = 'http://localhost:8080/api'
+const API_BASE = import.meta.env.vite.VITE_API_URL || "http://localhost:8080/api";
 
 function formatearFechaHora(fechaHoraStr) {
   if (!fechaHoraStr) return '—'

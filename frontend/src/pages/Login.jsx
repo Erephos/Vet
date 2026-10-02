@@ -4,7 +4,8 @@ import BrandPanel from '../components/BrandPanel.jsx'
 import HeaderBrand from '../components/HeaderBrand.jsx'
 import { guardarSesion } from '../lib/session.js'
 
-const API_BASE = 'http://localhost:8080/api'
+const apiUrl = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.vite.VITE_API_URL || "http://localhost:8080/api";
 
 export default function Login() {
   const [email, setEmail] = useState('')
