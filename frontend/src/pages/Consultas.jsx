@@ -113,8 +113,8 @@ export default function Consultas() {
     e.preventDefault()
     setErrorForm('')
 
-    if (!form.idMascota || !form.idVeterinario) {
-      setErrorForm('Selecciona mascota y veterinario.')
+    if (!form.idMascota || !form.idVeterinario || !form.fechaHora) {
+      setErrorForm('Selecciona mascota, veterinario y la fecha/hora de la consulta.')
       return
     }
 
@@ -278,13 +278,14 @@ export default function Consultas() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="fechaHoraConsulta">Fecha y hora (opcional)</label>
+              <label htmlFor="fechaHoraConsulta">Fecha y hora</label>
               <input
                 id="fechaHoraConsulta"
                 className="form-control"
                 type="datetime-local"
                 value={form.fechaHora}
                 onChange={(e) => setForm({ ...form, fechaHora: e.target.value })}
+                required
               />
             </div>
 
