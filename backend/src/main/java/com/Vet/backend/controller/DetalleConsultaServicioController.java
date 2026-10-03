@@ -1,7 +1,7 @@
 package com.Vet.backend.controller;
 
 import com.Vet.backend.model.DetalleConsultaServicio;
-import com.Vet.backend.service.DetalleConsultaServicioService;
+import com.Vet.backend.services.DetalleConsultaServicioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -2,7 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.dto.LoginRequestDTO;
 import com.Vet.backend.model.Usuario;
-import com.Vet.backend.service.UsuarioService;
+import com.Vet.backend.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

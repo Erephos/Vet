@@ -1,7 +1,7 @@
 package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Especie;
-import com.Vet.backend.service.EspecieService;
+import com.Vet.backend.services.EspecieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

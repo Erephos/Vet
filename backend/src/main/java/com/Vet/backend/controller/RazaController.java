@@ -1,7 +1,7 @@
 package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Raza;
-import com.Vet.backend.service.RazaService;
+import com.Vet.backend.services.RazaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
