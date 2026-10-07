@@ -1,4 +1,4 @@
-package com.Vet.backend.services;
+package com.Vet.backend.service;
 
 import com.Vet.backend.model.DetalleConsultaServicio;
 import com.Vet.backend.repository.DetalleConsultaServicioRepository;

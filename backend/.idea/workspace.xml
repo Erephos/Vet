@@ -4,40 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12faaaf9-f035-426c-94a3-a74dc4116029" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/config/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/config/CorsConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/ConsultaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/ConsultaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/DetalleConsultaServicioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/DetalleConsultaServicioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/DuenoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/DuenoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/EspecieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/EspecieController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/MascotaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/MascotaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/RazaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/RazaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/ServicioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/ServicioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/UsuarioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/UsuarioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/VeterinarioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Vet/backend/controller/VeterinarioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/config/CorsConfig$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/config/CorsConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/config/CorsConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/ConsultaController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/ConsultaController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/DetalleConsultaServicioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/DetalleConsultaServicioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/DuenoController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/DuenoController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/EspecieController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/EspecieController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/MascotaController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/MascotaController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/RazaController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/RazaController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/ServicioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/ServicioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/UsuarioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/UsuarioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/VeterinarioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Vet/backend/controller/VeterinarioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/ConsultaService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/DetalleConsultaServicioService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/DuenoService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/EspecieService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/MascotaService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/RazaService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/ServicioService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/UsuarioService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/Vet/backend/service/VeterinarioService.class" beforeDir="false" />
-    </list>
+    <list default="true" id="12faaaf9-f035-426c-94a3-a74dc4116029" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -122,7 +89,6 @@
       <updated>1790257591514</updated>
       <workItem from="1790262699463" duration="602000" />
       <workItem from="1790946444906" duration="5525000" />
-      <workItem from="1791036006609" duration="5000" />
     </task>
     <servers />
   </component>

@@ -1,4 +1,4 @@
-package com.Vet.backend.services;
+package com.Vet.backend.service;
 
 import com.Vet.backend.model.Veterinario;
 import com.Vet.backend.repository.VeterinarioRepository;

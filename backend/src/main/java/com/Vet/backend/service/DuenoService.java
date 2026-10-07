@@ -1,4 +1,4 @@
-package com.Vet.backend.services;
+package com.Vet.backend.service;
 
 import com.Vet.backend.model.Dueno;
 import com.Vet.backend.repository.DuenoRepository;
