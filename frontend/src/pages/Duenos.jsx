@@ -3,8 +3,9 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleDuenoModal from '../components/DetalleDuenoModal.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerDuenos, crearDueno, actualizarDueno, eliminarDueno } from '../services/duenosService.js'
+import { obtenerMascotas } from '../services/mascotasService.js'
+import '../styles/pages/Duenos.css'
 
 const FORM_VACIO = { nombre: '', telefono: '', direccion: '' }
 
@@ -31,17 +32,10 @@ export default function Duenos() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const [resDuenos, resMascotas] = await Promise.all([
-        fetch(`${API_BASE}/duenos`),
-        fetch(`${API_BASE}/mascotas`),
-      ])
+      const [listaDuenos, listaMascotas] = await Promise.all([obtenerDuenos(), obtenerMascotas()])
 
-      if (!resDuenos.ok || !resMascotas.ok) {
-        throw new Error('Alguno de los endpoints no respondió OK')
-      }
-
-      setDuenos(await resDuenos.json())
-      setMascotas(await resMascotas.json())
+      setDuenos(listaDuenos)
+      setMascotas(listaMascotas)
     } catch (err) {
       console.error('Error cargando dueños:', err)
       setError('No se pudo cargar la lista de dueños. Verifica que el backend esté encendido.')
@@ -103,14 +97,11 @@ export default function Duenos() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/duenos/${editandoId}` : `${API_BASE}/duenos`
-      const response = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-
-      if (!response.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarDueno(editandoId, form)
+      } else {
+        await crearDueno(form)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -132,8 +123,7 @@ export default function Duenos() {
     setEliminando(true)
     setErrorEliminar('')
     try {
-      const res = await fetch(`${API_BASE}/duenos/${duenoAEliminar.idDueno}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarDueno(duenoAEliminar.idDueno)
 
       setDuenoAEliminar(null)
       await cargarDatos()

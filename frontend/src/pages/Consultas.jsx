@@ -3,8 +3,11 @@ import { Pencil, Trash2, Plus } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleConsultaModal from '../components/DetalleConsultaModal.jsx'
+import { obtenerConsultas, crearConsulta, actualizarConsulta, eliminarConsulta } from '../services/consultasService.js'
+import { obtenerMascotas } from '../services/mascotasService.js'
+import { obtenerVeterinarios } from '../services/veterinariosService.js'
+import { obtenerServicios } from '../services/serviciosService.js'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 const FORM_VACIO = { idMascota: '', idVeterinario: '', fechaHora: '', diagnostico: '', costoBase: '' }
 
 function formatearFechaHora(fechaHoraStr) {
@@ -51,21 +54,17 @@ export default function Consultas() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const [resConsultas, resMascotas, resVeterinarios, resServicios] = await Promise.all([
-        fetch(`${API_BASE}/consultas`),
-        fetch(`${API_BASE}/mascotas`),
-        fetch(`${API_BASE}/veterinarios`),
-        fetch(`${API_BASE}/servicios`),
+      const [listaConsultas, listaMascotas, listaVeterinarios, listaServicios] = await Promise.all([
+        obtenerConsultas(),
+        obtenerMascotas(),
+        obtenerVeterinarios(),
+        obtenerServicios(),
       ])
 
-      if (!resConsultas.ok || !resMascotas.ok || !resVeterinarios.ok || !resServicios.ok) {
-        throw new Error('Alguno de los endpoints no respondió OK')
-      }
-
-      setConsultas(await resConsultas.json())
-      setMascotas(await resMascotas.json())
-      setVeterinarios(await resVeterinarios.json())
-      setServicios(await resServicios.json())
+      setConsultas(listaConsultas)
+      setMascotas(listaMascotas)
+      setVeterinarios(listaVeterinarios)
+      setServicios(listaServicios)
     } catch (err) {
       console.error('Error cargando consultas:', err)
       setError('No se pudo cargar la información. Verifica que el backend esté encendido.')
@@ -129,14 +128,11 @@ export default function Consultas() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/consultas/${editandoId}` : `${API_BASE}/consultas`
-      const response = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosConsulta),
-      })
-
-      if (!response.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarConsulta(editandoId, datosConsulta)
+      } else {
+        await crearConsulta(datosConsulta)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -158,8 +154,7 @@ export default function Consultas() {
     setEliminando(true)
     setErrorEliminar('')
     try {
-      const res = await fetch(`${API_BASE}/consultas/${consultaAEliminar.idConsulta}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarConsulta(consultaAEliminar.idConsulta)
 
       setConsultaAEliminar(null)
       await cargarDatos()

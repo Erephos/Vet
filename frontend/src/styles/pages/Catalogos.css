@@ -1,0 +1,28 @@
+/* Catálogos: pestañas Razas / Especies. */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e3ece7;
+}
+
+.tab-btn {
+  border: none;
+  background: none;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #7c8c84;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn-active {
+  color: #16a077;
+  border-bottom-color: #16a077;
+}
+
+@media (max-width: 768px) {
+  .tabs { overflow-x: auto; }
+}

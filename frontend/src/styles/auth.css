@@ -1,0 +1,178 @@
+/* Pantallas de autenticación (Login y Crear cuenta): tarjeta, panel de marca y panel del formulario. */
+
+.auth-shell {
+  background-color: #7d8489;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.main-container {
+  display: flex;
+  width: 100%;
+  max-width: 980px;
+  min-height: 640px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.left-panel {
+  flex: 1.1;
+  background-color: #c9ebd8;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.logo-oval-container {
+  background-color: #ffffff;
+  width: 320px;
+  height: 210px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  padding: 15px 20px;
+  margin-bottom: 30px;
+}
+
+.brand-paw-icon {
+  width: 110px;
+  height: 90px;
+  margin-bottom: -5px;
+}
+
+.brand-title-primary {
+  font-family: 'Montserrat', sans-serif;
+  color: #f16960;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.brand-title-secondary {
+  font-family: 'Montserrat', sans-serif;
+  color: #17b993;
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 1px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.brand-slogan {
+  color: #2e3832;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.right-panel {
+  flex: 1;
+  background-color: #edfbf4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 50px 45px;
+}
+
+.form-wrapper {
+  max-width: 350px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.form-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.header-paw-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.header-brand-text h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1ed0a8;
+  line-height: 1;
+}
+
+.header-brand-text span {
+  font-size: 11px;
+  color: #657570;
+  font-weight: 500;
+  display: block;
+  margin-top: 1px;
+}
+
+.login-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 12.5px;
+  color: #55605c;
+  margin-bottom: 28px;
+}
+
+.create-account-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 18px;
+}
+
+.create-account-link {
+  color: #1ed0a8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.create-account-link:hover { text-decoration: underline; }
+
+.form-footer {
+  text-align: center;
+  font-size: 10px;
+  color: #6d7d77;
+  margin-top: 35px;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    max-width: 420px;
+  }
+
+  .left-panel { padding: 30px 20px; }
+
+  .logo-oval-container {
+    width: 260px;
+    height: 170px;
+  }
+
+  .brand-paw-icon {
+    width: 90px;
+    height: 70px;
+  }
+
+  .right-panel { padding: 35px 25px; }
+}

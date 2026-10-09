@@ -1,0 +1,10 @@
+/* Dueños: contador de mascotas por dueño. */
+
+.badge-count {
+  background: #16a077;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+}

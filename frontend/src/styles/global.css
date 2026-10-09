@@ -1,0 +1,77 @@
+/* Reset, tipografía base y bloques de página compartidos (títulos, paneles, textos de ayuda). */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+body { min-height: 100vh; }
+
+.page-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #1e2a24;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: #7c8c84;
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #e3ece7;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.panel h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e2a24;
+  margin: 0 0 14px;
+}
+
+.empty-hint {
+  color: #9aa8a1;
+  font-size: 0.88rem;
+  padding: 8px 0;
+}
+
+.detalle-linea {
+  font-size: 0.9rem;
+  color: #2c332f;
+  margin-bottom: 6px;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .page-title { font-size: 1.25rem; }
+
+  .page-title-row { flex-wrap: wrap; }
+
+  .page-title-row .btn-inline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .panel { padding: 14px; }
+}

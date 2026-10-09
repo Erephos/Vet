@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { obtenerSesion } from '../lib/session.js'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerUsuarios } from '../services/usuariosService.js'
+import '../styles/pages/Perfil.css'
 
 export default function Perfil() {
   const sesion = obtenerSesion()
@@ -16,9 +16,7 @@ export default function Perfil() {
 
     async function cargarUsuarios() {
       try {
-        const res = await fetch(`${API_BASE}/usuarios`)
-        if (!res.ok) throw new Error('Respuesta no OK')
-        setUsuarios(await res.json())
+        setUsuarios(await obtenerUsuarios())
       } catch (err) {
         console.error('Error cargando cuentas:', err)
         setError('No se pudo cargar la lista de cuentas. Verifica que el backend esté encendido.')

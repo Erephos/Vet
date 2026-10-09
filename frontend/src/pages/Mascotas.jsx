@@ -3,8 +3,9 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleMascotaModal from '../components/DetalleMascotaModal.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerMascotas, crearMascota, actualizarMascota, eliminarMascota } from '../services/mascotasService.js'
+import { obtenerDuenos } from '../services/duenosService.js'
+import { obtenerRazas } from '../services/catalogosService.js'
 
 const FORM_VACIO = { nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' }
 
@@ -41,19 +42,15 @@ export default function Mascotas() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const [resMascotas, resDuenos, resRazas] = await Promise.all([
-        fetch(`${API_BASE}/mascotas`),
-        fetch(`${API_BASE}/duenos`),
-        fetch(`${API_BASE}/razas`),
+      const [listaMascotas, listaDuenos, listaRazas] = await Promise.all([
+        obtenerMascotas(),
+        obtenerDuenos(),
+        obtenerRazas(),
       ])
 
-      if (!resMascotas.ok || !resDuenos.ok || !resRazas.ok) {
-        throw new Error('Alguno de los endpoints no respondió OK')
-      }
-
-      setMascotas(await resMascotas.json())
-      setDuenos(await resDuenos.json())
-      setRazas(await resRazas.json())
+      setMascotas(listaMascotas)
+      setDuenos(listaDuenos)
+      setRazas(listaRazas)
     } catch (err) {
       console.error('Error cargando mascotas:', err)
       setError('No se pudo cargar la información. Verifica que el backend esté encendido.')
@@ -115,14 +112,11 @@ export default function Mascotas() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/mascotas/${editandoId}` : `${API_BASE}/mascotas`
-      const response = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosMascota),
-      })
-
-      if (!response.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarMascota(editandoId, datosMascota)
+      } else {
+        await crearMascota(datosMascota)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -144,8 +138,7 @@ export default function Mascotas() {
     setEliminando(true)
     setErrorEliminar('')
     try {
-      const res = await fetch(`${API_BASE}/mascotas/${mascotaAEliminar.idMascota}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarMascota(mascotaAEliminar.idMascota)
 
       setMascotaAEliminar(null)
       await cargarDatos()

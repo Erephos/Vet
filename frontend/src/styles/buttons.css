@@ -1,0 +1,97 @@
+/* Botones compartidos: enviar, "Agregar", acciones rápidas, peligro y botones de ícono. */
+
+.btn-submit {
+  width: 100%;
+  height: 40px;
+  background-color: #1ed0a8;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-submit:hover { background-color: #19b895; }
+
+.btn-submit:active { transform: scale(0.99); }
+
+.btn-quick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-quick:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn-quick-primary {
+  background: #16a077;
+  color: #ffffff;
+}
+
+.btn-quick-secondary {
+  background: #c9e9d2;
+  color: #146c4f;
+}
+
+.btn-quick-light {
+  background: #eafaf3;
+  color: #16a077;
+}
+
+.btn-inline {
+  width: auto;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-danger {
+  background: #e24b4b;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon-btn {
+  border: none;
+  background: none;
+  color: #8a9a93;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.icon-btn:hover {
+  background: #f1f7f4;
+  color: #16a077;
+}
+
+.icon-btn-danger:hover {
+  background: #fdecec;
+  color: #e24b4b;
+}

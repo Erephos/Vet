@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FileEdit, PawPrint, User, CalendarDays, Plus } from 'lucide-react'
 import { obtenerSesion } from '../lib/session.js'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerDatosDashboard } from '../services/homeService.js'
+import '../styles/dashboard.css'
+import '../styles/pages/Home.css'
 
 function esHoy(fechaHoraStr) {
   if (!fechaHoraStr) return false
@@ -37,21 +38,12 @@ export default function Home() {
   useEffect(() => {
     async function cargarDatos() {
       try {
-        const [resConsultas, resMascotas, resDuenos, resVeterinarios] = await Promise.all([
-          fetch(`${API_BASE}/consultas`),
-          fetch(`${API_BASE}/mascotas`),
-          fetch(`${API_BASE}/duenos`),
-          fetch(`${API_BASE}/veterinarios`),
-        ])
+        const datos = await obtenerDatosDashboard()
 
-        if (!resConsultas.ok || !resMascotas.ok || !resDuenos.ok || !resVeterinarios.ok) {
-          throw new Error('Alguno de los endpoints no respondió OK')
-        }
-
-        setConsultas(await resConsultas.json())
-        setMascotas(await resMascotas.json())
-        setDuenos(await resDuenos.json())
-        setVeterinarios(await resVeterinarios.json())
+        setConsultas(datos.consultas)
+        setMascotas(datos.mascotas)
+        setDuenos(datos.duenos)
+        setVeterinarios(datos.veterinarios)
       } catch (err) {
         console.error('Error cargando el dashboard:', err)
         setError('No se pudo cargar la información. Verifica que el backend esté encendido.')

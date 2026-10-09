@@ -1,0 +1,81 @@
+/* Tablas de listados (Dueños, Mascotas, Consultas, etc.): filas, avatares y acciones. */
+
+.panel-table {
+  padding: 0;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #8a9a93;
+  padding: 14px 20px;
+  border-bottom: 1px solid #eef1ef;
+}
+
+.data-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid #f3f6f4;
+  font-size: 0.9rem;
+  color: #2c332f;
+}
+
+.data-row:last-child td { border-bottom: none; }
+
+.row-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #16a077;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.row-chevron {
+  color: #b7c3bd;
+  text-align: right;
+}
+
+.data-row-clickable { cursor: pointer; }
+
+.data-row-clickable:hover { background: #f7faf8; }
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .panel-table {
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table { min-width: 560px; }
+
+  .data-table th, .data-table td {
+    padding: 12px 14px;
+    white-space: nowrap;
+  }
+}

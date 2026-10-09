@@ -12,6 +12,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import { borrarSesion } from '../lib/session.js'
+import '../styles/layout.css'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home, end: true },

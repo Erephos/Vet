@@ -1,4 +1,5 @@
 import { X } from 'lucide-react'
+import '../styles/modal.css'
 
 export default function Modal({ titulo, onClose, children }) {
   return (

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ClipboardList } from 'lucide-react'
 import Modal from './Modal.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerConsultasPorMascota } from '../services/consultasService.js'
 
 function formatearFecha(fechaHoraStr) {
   if (!fechaHoraStr) return 'Sin fecha'
@@ -21,9 +20,7 @@ export default function DetalleMascotaModal({ mascota, onClose }) {
   useEffect(() => {
     async function cargar() {
       try {
-        const res = await fetch(`${API_BASE}/consultas/mascota/${mascota.idMascota}`)
-        if (!res.ok) throw new Error('Respuesta no OK')
-        setConsultas(await res.json())
+        setConsultas(await obtenerConsultasPorMascota(mascota.idMascota))
       } catch (err) {
         console.error('Error cargando historial de la mascota:', err)
         setError('No se pudo cargar el historial de consultas.')

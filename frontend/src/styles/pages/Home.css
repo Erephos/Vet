@@ -1,0 +1,60 @@
+/* Home (dashboard): íconos de estadísticas, accesos rápidos y paneles laterales. */
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 14px;
+}
+
+.stat-icon-mint { background: #35c9a5; }
+
+.stat-icon-teal { background: #57c8c8; }
+
+.stat-icon-slate { background: #7c93a8; }
+
+.home-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.panel-header h2 { margin: 0; }
+
+.panel-link {
+  color: #16a077;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.vet-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #16a077;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

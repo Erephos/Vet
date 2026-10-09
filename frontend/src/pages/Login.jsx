@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import BrandPanel from '../components/BrandPanel.jsx'
 import HeaderBrand from '../components/HeaderBrand.jsx'
 import { guardarSesion } from '../lib/session.js'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { iniciarSesion } from '../services/usuariosService.js'
+import { ApiError } from '../services/api.js'
+import '../styles/auth.css'
+import '../styles/pages/Login.css'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -20,31 +22,25 @@ export default function Login() {
     setMensaje({ texto: '', tipo: '' })
 
     try {
-      // Confirmado con UsuarioController.java: POST /api/usuarios/login,
-      // body {email, password}, responde el objeto Usuario completo.
-      const response = await fetch(`${API_BASE}/usuarios/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
+      // POST /api/usuarios/login, body {email, password}, responde el Usuario completo.
+      const usuario = await iniciarSesion(email, password)
 
-      if (response.ok) {
-        const usuario = await response.json()
-        // No guardamos el password en localStorage aunque el backend lo
-        // devuelva; no hace falta tenerlo en el navegador para nada.
-        const { password: _password, ...datosUsuario } = usuario
+      // No guardamos el password en localStorage aunque el backend lo
+      // devuelva; no hace falta tenerlo en el navegador para nada.
+      const { password: _password, ...datosUsuario } = usuario
 
-        guardarSesion(datosUsuario)
-        setMensaje({ texto: 'Sesión iniciada correctamente.', tipo: 'success' })
-        navigate('/')
-      } else if (response.status === 401) {
-        setMensaje({ texto: 'Correo o contraseña incorrectos.', tipo: 'error' })
-      } else {
-        setMensaje({ texto: 'No se pudo iniciar sesión. Intenta de nuevo.', tipo: 'error' })
-      }
+      guardarSesion(datosUsuario)
+      setMensaje({ texto: 'Sesión iniciada correctamente.', tipo: 'success' })
+      navigate('/')
     } catch (error) {
-      console.error('Error en la petición:', error)
-      setMensaje({ texto: 'Error de conexión con el servidor (backend apagado o CORS).', tipo: 'error' })
+      if (error instanceof ApiError && error.status === 401) {
+        setMensaje({ texto: 'Correo o contraseña incorrectos.', tipo: 'error' })
+      } else if (error instanceof ApiError) {
+        setMensaje({ texto: 'No se pudo iniciar sesión. Intenta de nuevo.', tipo: 'error' })
+      } else {
+        console.error('Error en la petición:', error)
+        setMensaje({ texto: 'Error de conexión con el servidor (backend apagado o CORS).', tipo: 'error' })
+      }
     } finally {
       setEnviando(false)
     }

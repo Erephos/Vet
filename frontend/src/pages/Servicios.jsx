@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Tag, Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { obtenerServicios, crearServicio, actualizarServicio, eliminarServicio } from '../services/serviciosService.js'
+import '../styles/pages/Servicios.css'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 const FORM_VACIO = { nombreServicio: '', precio: '' }
 
 export default function Servicios() {
@@ -25,9 +26,7 @@ export default function Servicios() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const res = await fetch(`${API_BASE}/servicios`)
-      if (!res.ok) throw new Error('Respuesta no OK')
-      setServicios(await res.json())
+      setServicios(await obtenerServicios())
     } catch (err) {
       console.error('Error cargando servicios:', err)
       setError('No se pudo cargar la lista de servicios. Verifica que el backend esté encendido.')
@@ -70,14 +69,11 @@ export default function Servicios() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/servicios/${editandoId}` : `${API_BASE}/servicios`
-      const res = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombreServicio: form.nombreServicio, precio: Number(form.precio) }),
-      })
-
-      if (!res.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarServicio(editandoId, { nombreServicio: form.nombreServicio, precio: Number(form.precio) })
+      } else {
+        await crearServicio({ nombreServicio: form.nombreServicio, precio: Number(form.precio) })
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -93,8 +89,7 @@ export default function Servicios() {
     setEliminando(true)
     setErrorEliminar('')
     try {
-      const res = await fetch(`${API_BASE}/servicios/${servicioAEliminar.idServicio}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarServicio(servicioAEliminar.idServicio)
 
       setServicioAEliminar(null)
       await cargarDatos()

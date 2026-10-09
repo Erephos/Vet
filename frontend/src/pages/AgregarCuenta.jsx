@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandPanel from '../components/BrandPanel.jsx'
 import HeaderBrand from '../components/HeaderBrand.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { crearUsuario } from '../services/usuariosService.js'
+import { obtenerVeterinarios } from '../services/veterinariosService.js'
+import { ApiError } from '../services/api.js'
+import '../styles/auth.css'
 
 export default function AgregarCuenta() {
   const [email, setEmail] = useState('')
@@ -21,10 +23,7 @@ export default function AgregarCuenta() {
     if (veterinariosCargados) return
 
     try {
-      const response = await fetch(`${API_BASE}/veterinarios`)
-      if (!response.ok) throw new Error('No se pudo obtener la lista de veterinarios')
-
-      const data = await response.json()
+      const data = await obtenerVeterinarios()
       setVeterinarios(data)
       setVeterinariosCargados(true)
     } catch (error) {
@@ -70,27 +69,23 @@ export default function AgregarCuenta() {
 
     setEnviando(true)
     try {
-      const response = await fetch(`${API_BASE}/usuarios`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoUsuario),
-      })
+      await crearUsuario(nuevoUsuario)
 
-      if (response.ok) {
-        setMensaje({ texto: '¡Cuenta creada exitosamente! Ya puedes iniciar sesión.', tipo: 'success' })
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
-        setRol('')
-        setIdVeterinario('')
-      } else if (response.status === 409) {
-        setMensaje({ texto: 'Ese correo ya está registrado.', tipo: 'error' })
-      } else {
-        setMensaje({ texto: 'Error al crear la cuenta. Verifica los datos.', tipo: 'error' })
-      }
+      setMensaje({ texto: '¡Cuenta creada exitosamente! Ya puedes iniciar sesión.', tipo: 'success' })
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setRol('')
+      setIdVeterinario('')
     } catch (error) {
-      console.error('Error en la petición:', error)
-      setMensaje({ texto: 'Error de conexión con el servidor (backend apagado o CORS).', tipo: 'error' })
+      if (error instanceof ApiError && error.status === 409) {
+        setMensaje({ texto: 'Ese correo ya está registrado.', tipo: 'error' })
+      } else if (error instanceof ApiError) {
+        setMensaje({ texto: 'Error al crear la cuenta. Verifica los datos.', tipo: 'error' })
+      } else {
+        console.error('Error en la petición:', error)
+        setMensaje({ texto: 'Error de conexión con el servidor (backend apagado o CORS).', tipo: 'error' })
+      }
     } finally {
       setEnviando(false)
     }

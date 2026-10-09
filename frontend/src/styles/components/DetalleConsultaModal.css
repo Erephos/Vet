@@ -1,0 +1,53 @@
+/* Modal de detalle de consulta: servicios aplicados, total y formulario para agregar. */
+
+.servicios-aplicados-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.servicio-aplicado-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #f7faf8;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.servicio-aplicado-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.servicio-precio {
+  font-weight: 700;
+  color: #16a077;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.detalle-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px dashed #e3ece7;
+  padding-top: 12px;
+  margin-bottom: 18px;
+  font-size: 0.9rem;
+  color: #2c332f;
+}
+
+.agregar-servicio-form {
+  border-top: 1px solid #eef1ef;
+  padding-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .servicio-aplicado-item { flex-wrap: wrap; }
+}

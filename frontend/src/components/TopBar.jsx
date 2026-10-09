@@ -1,4 +1,5 @@
 import { Search, Menu } from 'lucide-react'
+import '../styles/layout.css'
 
 export default function TopBar({ onAbrirMenu }) {
   return (

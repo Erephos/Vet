@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import Modal from './Modal.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import {
+  obtenerDetallesPorConsulta,
+  agregarDetalle,
+  eliminarDetalle,
+} from '../services/detalleConsultaServicioService.js'
+import '../styles/components/DetalleConsultaModal.css'
 
 export default function DetalleConsultaModal({ consulta, servicios, onClose, onCambio }) {
   const [detalles, setDetalles] = useState([])
@@ -17,9 +21,7 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
   async function cargarDetalles() {
     setCargando(true)
     try {
-      const res = await fetch(`${API_BASE}/detalle-consulta-servicio/consulta/${consulta.idConsulta}`)
-      if (!res.ok) throw new Error('Respuesta no OK')
-      setDetalles(await res.json())
+      setDetalles(await obtenerDetallesPorConsulta(consulta.idConsulta))
     } catch (err) {
       console.error('Error cargando servicios de la consulta:', err)
       setError('No se pudieron cargar los servicios aplicados.')
@@ -38,8 +40,7 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
 
   async function handleEliminarDetalle(idDetalle) {
     try {
-      const res = await fetch(`${API_BASE}/detalle-consulta-servicio/${idDetalle}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarDetalle(idDetalle)
 
       await cargarDetalles()
       onCambio?.()
@@ -60,17 +61,11 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
 
     setGuardando(true)
     try {
-      const res = await fetch(`${API_BASE}/detalle-consulta-servicio`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          consulta: { idConsulta: consulta.idConsulta },
-          servicio: { idServicio: Number(idServicio) },
-          observaciones: observaciones || null,
-        }),
+      await agregarDetalle({
+        consulta: { idConsulta: consulta.idConsulta },
+        servicio: { idServicio: Number(idServicio) },
+        observaciones: observaciones || null,
       })
-
-      if (!res.ok) throw new Error('El backend respondió con error al agregar el servicio')
 
       setIdServicio('')
       setObservaciones('')

@@ -1,0 +1,55 @@
+/* Tarjetas de estadísticas y grilla de paneles (Home y Reportes). */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e3ece7;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.stat-value {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #1e2a24;
+}
+
+.stat-label {
+  color: #7c8c84;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .home-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .stat-card { padding: 14px; }
+}
+
+@media (max-width: 380px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+}

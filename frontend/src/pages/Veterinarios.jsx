@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { obtenerVeterinarios, crearVeterinario, actualizarVeterinario, eliminarVeterinario } from '../services/veterinariosService.js'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 const FORM_VACIO = { nombre: '', especialidad: '', telefono: '' }
 
 export default function Veterinarios() {
@@ -25,9 +25,7 @@ export default function Veterinarios() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const res = await fetch(`${API_BASE}/veterinarios`)
-      if (!res.ok) throw new Error('Respuesta no OK')
-      setVeterinarios(await res.json())
+      setVeterinarios(await obtenerVeterinarios())
     } catch (err) {
       console.error('Error cargando veterinarios:', err)
       setError('No se pudo cargar la lista de veterinarios. Verifica que el backend esté encendido.')
@@ -79,14 +77,11 @@ export default function Veterinarios() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/veterinarios/${editandoId}` : `${API_BASE}/veterinarios`
-      const res = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-
-      if (!res.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarVeterinario(editandoId, form)
+      } else {
+        await crearVeterinario(form)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -102,8 +97,7 @@ export default function Veterinarios() {
     setEliminando(true)
     setErrorEliminar('')
     try {
-      const res = await fetch(`${API_BASE}/veterinarios/${vetAEliminar.idVeterinario}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      await eliminarVeterinario(vetAEliminar.idVeterinario)
 
       setVetAEliminar(null)
       await cargarDatos()

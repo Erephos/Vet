@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import { obtenerDatosReportes } from '../services/reportesService.js'
+import '../styles/dashboard.css'
+import '../styles/pages/Reportes.css'
 
 export default function Reportes() {
   const [consultas, setConsultas] = useState([])
@@ -11,15 +12,10 @@ export default function Reportes() {
   useEffect(() => {
     async function cargarDatos() {
       try {
-        const [resConsultas, resDetalles] = await Promise.all([
-          fetch(`${API_BASE}/consultas`),
-          fetch(`${API_BASE}/detalle-consulta-servicio`),
-        ])
+        const datos = await obtenerDatosReportes()
 
-        if (!resConsultas.ok || !resDetalles.ok) throw new Error('Alguno de los endpoints no respondió OK')
-
-        setConsultas(await resConsultas.json())
-        setDetalles(await resDetalles.json())
+        setConsultas(datos.consultas)
+        setDetalles(datos.detalles)
       } catch (err) {
         console.error('Error cargando reportes:', err)
         setError('No se pudo cargar la información. Verifica que el backend esté encendido.')

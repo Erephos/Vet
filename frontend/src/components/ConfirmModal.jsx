@@ -1,4 +1,5 @@
 import Modal from './Modal.jsx'
+import '../styles/modal.css'
 
 export default function ConfirmModal({ titulo, mensaje, error, confirmando, onConfirm, onCancel }) {
   return (

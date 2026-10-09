@@ -1,0 +1,39 @@
+/* Listas con ícono/título/subtítulo usadas en Home, Perfil y los modales de detalle. */
+
+.today-list, .vet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.today-item, .vet-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.today-item-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #eafaf3;
+  color: #16a077;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.today-item-title, .vet-item-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e2a24;
+}
+
+.today-item-sub, .vet-item-sub {
+  font-size: 0.8rem;
+  color: #8a9a93;
+}

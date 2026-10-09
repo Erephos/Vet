@@ -2,8 +2,17 @@ import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+import {
+  obtenerEspecies,
+  obtenerRazas,
+  crearRaza,
+  actualizarRaza,
+  eliminarRaza,
+  crearEspecie,
+  actualizarEspecie,
+  eliminarEspecie,
+} from '../services/catalogosService.js'
+import '../styles/pages/Catalogos.css'
 
 export default function Catalogos() {
   const [pestana, setPestana] = useState('razas')
@@ -27,15 +36,10 @@ export default function Catalogos() {
   async function cargarDatos() {
     setCargando(true)
     try {
-      const [resEspecies, resRazas] = await Promise.all([
-        fetch(`${API_BASE}/especies`),
-        fetch(`${API_BASE}/razas`),
-      ])
+      const [listaEspecies, listaRazas] = await Promise.all([obtenerEspecies(), obtenerRazas()])
 
-      if (!resEspecies.ok || !resRazas.ok) throw new Error('Alguno de los endpoints no respondió OK')
-
-      setEspecies(await resEspecies.json())
-      setRazas(await resRazas.json())
+      setEspecies(listaEspecies)
+      setRazas(listaRazas)
     } catch (err) {
       console.error('Error cargando catálogos:', err)
       setError('No se pudo cargar la información. Verifica que el backend esté encendido.')
@@ -79,17 +83,16 @@ export default function Catalogos() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/razas/${editandoId}` : `${API_BASE}/razas`
-      const res = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombreRaza: formRaza.nombreRaza,
-          especie: { idEspecie: Number(formRaza.idEspecie) },
-        }),
-      })
+      const datosRaza = {
+        nombreRaza: formRaza.nombreRaza,
+        especie: { idEspecie: Number(formRaza.idEspecie) },
+      }
 
-      if (!res.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarRaza(editandoId, datosRaza)
+      } else {
+        await crearRaza(datosRaza)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -113,14 +116,13 @@ export default function Catalogos() {
     setGuardando(true)
     try {
       const esEdicion = editandoId != null
-      const url = esEdicion ? `${API_BASE}/especies/${editandoId}` : `${API_BASE}/especies`
-      const res = await fetch(url, {
-        method: esEdicion ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombreEspecie: formEspecie.nombreEspecie }),
-      })
+      const datosEspecie = { nombreEspecie: formEspecie.nombreEspecie }
 
-      if (!res.ok) throw new Error('El backend respondió con error')
+      if (esEdicion) {
+        await actualizarEspecie(editandoId, datosEspecie)
+      } else {
+        await crearEspecie(datosEspecie)
+      }
 
       setModalAbierto(false)
       await cargarDatos()
@@ -137,9 +139,11 @@ export default function Catalogos() {
     setErrorEliminar('')
     try {
       const { tipo, item } = itemAEliminar
-      const url = tipo === 'raza' ? `${API_BASE}/razas/${item.idRaza}` : `${API_BASE}/especies/${item.idEspecie}`
-      const res = await fetch(url, { method: 'DELETE' })
-      if (!res.ok) throw new Error('El backend respondió con error al eliminar')
+      if (tipo === 'raza') {
+        await eliminarRaza(item.idRaza)
+      } else {
+        await eliminarEspecie(item.idEspecie)
+      }
 
       setItemAEliminar(null)
       await cargarDatos()

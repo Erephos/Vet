@@ -1,0 +1,17 @@
+/* Perfil: cabecera con avatar. */
+
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.perfil-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .perfil-header { flex-wrap: wrap; }
+}

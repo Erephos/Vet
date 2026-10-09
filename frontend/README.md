@@ -13,11 +13,38 @@ npm run dev
 
 Abre `http://localhost:5173`.
 
+## Estructura de `src/`
+
+```
+src/
+├── pages/         Una pantalla por archivo (Login, Duenos, Mascotas, ...)
+├── components/    Piezas reutilizables (Modal, Sidebar, TopBar, ...)
+├── services/      Toda la comunicación con el backend (fetch). Las pages no hacen fetch.
+│   ├── api.js                  URL base, ApiError y helpers GET/POST/PUT/DELETE
+│   ├── duenosService.js        obtener / crear / actualizar / eliminar dueños
+│   ├── mascotasService.js, consultasService.js, serviciosService.js, veterinariosService.js
+│   ├── catalogosService.js     razas y especies
+│   ├── usuariosService.js      login, crear cuenta, listar cuentas
+│   ├── detalleConsultaServicioService.js
+│   ├── homeService.js          datos del dashboard
+│   └── reportesService.js      datos de los reportes
+├── styles/
+│   ├── index.css               importa los estilos compartidos
+│   ├── global.css, forms.css, buttons.css, tables.css, lists.css   (compartidos)
+│   ├── layout.css, auth.css, modal.css, dashboard.css              (por área)
+│   ├── pages/                  Home, Login, Duenos, Servicios, Catalogos, Reportes, Perfil
+│   └── components/             DetalleConsultaModal
+└── lib/session.js  Sesión guardada en localStorage
+```
+
+Regla del proyecto: una page importa su CSS y sus services; si necesita datos, los pide
+a un service, nunca hace `fetch` directo.
+
 ## Qué se migró y cómo
 
 - `Html/index.html` → `src/pages/Login.jsx`
 - `Html/agregar_cuenta.html` → `src/pages/AgregarCuenta.jsx`
-- `Css/styles.css` → `src/index.css` (copiado tal cual, sin tocar nada)
+- `Css/styles.css` → ahora está dividido por page y por componente dentro de `src/styles/` (ver abajo)
 - `JavaScript/agregar_cuenta.js` → la misma lógica ahora vive dentro de
   `AgregarCuenta.jsx`, usando `useState` en vez de `document.getElementById`
 - El SVG de la huella (que se repetía en ambos HTML) ahora es un componente

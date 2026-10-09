@@ -1,3 +1,5 @@
+import '../styles/auth.css'
+
 export default function BrandPanel() {
   return (
     <div className="left-panel">

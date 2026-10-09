@@ -1,0 +1,53 @@
+/* Reportes: gráfico de barras. */
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-label {
+  font-size: 0.82rem;
+  color: #2c332f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  height: 10px;
+  background: #eef4f1;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.bar-fill-mint { background: #35c9a5; }
+
+.bar-fill-teal { background: #57c8c8; }
+
+.bar-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e2a24;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .bar-row { grid-template-columns: 90px 1fr 60px; }
+}
+
+@media (max-width: 380px) {
+  .bar-row { grid-template-columns: 70px 1fr 50px; }
+}

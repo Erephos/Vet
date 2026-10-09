@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar.jsx'
 import TopBar from './TopBar.jsx'
+import '../styles/layout.css'
 
 export default function Layout() {
   const [menuAbierto, setMenuAbierto] = useState(false)
