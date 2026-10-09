@@ -1,0 +1,41 @@
+Dependencias de Node / Frontend
+
+node_modules/
+/node_modules/
+
+Carpetas de compilación (Frontend y Java/Spring Boot)
+
+dist/
+build/
+target/
+/target/
+bin/
+
+Variables de entorno y credenciales
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+Archivos de IDEs (IntelliJ, VS Code, Eclipse, etc.)
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+.classpath
+.project
+.settings/
+
+Archivos de registro (Logs) y del Sistema Operativo
+
+.log
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
