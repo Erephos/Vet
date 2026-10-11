@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Servicio;
 import com.Vet.backend.services.ServicioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,13 @@ public class ServicioController {
     }
 
     @PostMapping
-    public ResponseEntity<Servicio> crear(@RequestBody Servicio servicio) {
+    public ResponseEntity<Servicio> crear(@Valid @RequestBody Servicio servicio) {
         Servicio guardado = servicioService.save(servicio);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Servicio> actualizar(@PathVariable Integer id, @RequestBody Servicio servicio) {
+    public ResponseEntity<Servicio> actualizar(@PathVariable Integer id, @Valid @RequestBody Servicio servicio) {
         if (!servicioService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { esAdmin } from '../lib/session.js'
+import { mensajeDeError } from '../lib/errores.js'
 import {
   obtenerEspecies,
   obtenerRazas,
@@ -15,6 +17,9 @@ import {
 import '../styles/pages/Catalogos.css'
 
 export default function Catalogos() {
+  // El veterinario puede consultar este listado pero solo el administrador lo modifica.
+  const puedeEditar = esAdmin()
+
   const [pestana, setPestana] = useState('razas')
 
   const [especies, setEspecies] = useState([])
@@ -98,7 +103,7 @@ export default function Catalogos() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando raza:', err)
-      setErrorForm('No se pudo guardar la raza. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar la raza. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }
@@ -128,7 +133,7 @@ export default function Catalogos() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando especie:', err)
-      setErrorForm('No se pudo guardar la especie. Puede que ya exista una con ese nombre.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar la especie. Puede que ya exista una con ese nombre.'))
     } finally {
       setGuardando(false)
     }
@@ -166,9 +171,11 @@ export default function Catalogos() {
           <h1 className="page-title">Catálogos</h1>
           <p className="page-subtitle">Razas y especies usadas al registrar mascotas</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
-          <Plus size={16} /> Agregar {pestana === 'razas' ? 'raza' : 'especie'}
-        </button>
+        {puedeEditar && (
+          <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
+            <Plus size={16} /> Agregar {pestana === 'razas' ? 'raza' : 'especie'}
+          </button>
+        )}
       </div>
 
       <div className="tabs">
@@ -210,19 +217,21 @@ export default function Catalogos() {
                   <td>{r.nombreRaza}</td>
                   <td>{r.especie?.nombreEspecie || '—'}</td>
                   <td>
-                    <div className="row-actions">
-                      <button type="button" className="icon-btn" onClick={() => abrirModalEditar(r)} aria-label="Editar">
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn-danger"
-                        onClick={() => { setErrorEliminar(''); setItemAEliminar({ tipo: 'raza', item: r }) }}
-                        aria-label="Eliminar"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                    {puedeEditar && (
+                      <div className="row-actions">
+                        <button type="button" className="icon-btn" onClick={() => abrirModalEditar(r)} aria-label="Editar">
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-btn icon-btn-danger"
+                          onClick={() => { setErrorEliminar(''); setItemAEliminar({ tipo: 'raza', item: r }) }}
+                          aria-label="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -245,19 +254,21 @@ export default function Catalogos() {
                 <tr key={esp.idEspecie} className="data-row">
                   <td>{esp.nombreEspecie}</td>
                   <td>
-                    <div className="row-actions">
-                      <button type="button" className="icon-btn" onClick={() => abrirModalEditar(esp)} aria-label="Editar">
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn-danger"
-                        onClick={() => { setErrorEliminar(''); setItemAEliminar({ tipo: 'especie', item: esp }) }}
-                        aria-label="Eliminar"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                    {puedeEditar && (
+                      <div className="row-actions">
+                        <button type="button" className="icon-btn" onClick={() => abrirModalEditar(esp)} aria-label="Editar">
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-btn icon-btn-danger"
+                          onClick={() => { setErrorEliminar(''); setItemAEliminar({ tipo: 'especie', item: esp }) }}
+                          aria-label="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

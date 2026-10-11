@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.DetalleConsultaServicio;
 import com.Vet.backend.services.DetalleConsultaServicioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class DetalleConsultaServicioController {
     }
 
     @PostMapping
-    public ResponseEntity<DetalleConsultaServicio> crear(@RequestBody DetalleConsultaServicio detalle) {
+    public ResponseEntity<DetalleConsultaServicio> crear(@Valid @RequestBody DetalleConsultaServicio detalle) {
         DetalleConsultaServicio guardado = detalleService.save(detalle);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DetalleConsultaServicio> actualizar(@PathVariable Integer id, @RequestBody DetalleConsultaServicio detalle) {
+    public ResponseEntity<DetalleConsultaServicio> actualizar(@PathVariable Integer id, @Valid @RequestBody DetalleConsultaServicio detalle) {
         if (!detalleService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -1,33 +1,59 @@
 import { useEffect, useState } from 'react'
-import { obtenerSesion } from '../lib/session.js'
-import { obtenerUsuarios } from '../services/usuariosService.js'
+import { useNavigate } from 'react-router-dom'
+import { UserPlus, Trash2 } from 'lucide-react'
+import { obtenerSesion, esAdmin } from '../lib/session.js'
+import ConfirmModal from '../components/ConfirmModal.jsx'
+import { obtenerUsuarios, eliminarUsuario } from '../services/usuariosService.js'
 import '../styles/pages/Perfil.css'
 
 export default function Perfil() {
+  const navigate = useNavigate()
   const sesion = obtenerSesion()
-  const esAdmin = sesion?.rol === 'admin' || sesion?.rol === 'ADMINISTRADOR'
+  const soyAdmin = esAdmin(sesion)
 
   const [usuarios, setUsuarios] = useState([])
-  const [cargando, setCargando] = useState(esAdmin)
+  const [cargando, setCargando] = useState(soyAdmin)
   const [error, setError] = useState('')
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState(null)
+  const [eliminando, setEliminando] = useState(false)
+  const [errorEliminar, setErrorEliminar] = useState('')
+
+  async function cargarUsuarios() {
+    try {
+      setUsuarios(await obtenerUsuarios())
+    } catch (err) {
+      console.error('Error cargando cuentas:', err)
+      setError('No se pudo cargar la lista de cuentas. Verifica que el backend esté encendido.')
+    } finally {
+      setCargando(false)
+    }
+  }
 
   useEffect(() => {
-    if (!esAdmin) return
-
-    async function cargarUsuarios() {
-      try {
-        setUsuarios(await obtenerUsuarios())
-      } catch (err) {
-        console.error('Error cargando cuentas:', err)
-        setError('No se pudo cargar la lista de cuentas. Verifica que el backend esté encendido.')
-      } finally {
-        setCargando(false)
-      }
-    }
-
+    if (!soyAdmin) return
     cargarUsuarios()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  async function confirmarEliminar() {
+    setEliminando(true)
+    setErrorEliminar('')
+    try {
+      await eliminarUsuario(usuarioAEliminar.idUsuario)
+
+      setUsuarioAEliminar(null)
+      await cargarUsuarios()
+    } catch (err) {
+      console.error('Error eliminando cuenta:', err)
+      setErrorEliminar(
+        err.status === 409 && err.detalle
+          ? err.detalle
+          : 'No se pudo eliminar la cuenta. Intenta de nuevo.'
+      )
+    } finally {
+      setEliminando(false)
+    }
+  }
 
   function iniciales(texto) {
     return texto
@@ -40,7 +66,7 @@ export default function Perfil() {
   }
 
   function rolLegible(rol) {
-    return rol === 'admin' || rol === 'ADMINISTRADOR' ? 'Administrador' : 'Veterinario'
+    return esAdmin({ rol }) ? 'Administrador' : 'Veterinario'
   }
 
   return (
@@ -50,6 +76,11 @@ export default function Perfil() {
           <h1 className="page-title">Perfil</h1>
           <p className="page-subtitle">Datos de la cuenta con la que iniciaste sesión</p>
         </div>
+        {soyAdmin && (
+          <button type="button" className="btn-submit btn-inline" onClick={() => navigate('/agregar-cuenta')}>
+            <UserPlus size={16} /> Crear cuenta
+          </button>
+        )}
       </div>
 
       <div className="panel" style={{ maxWidth: 480, marginBottom: 20 }}>
@@ -80,7 +111,7 @@ export default function Perfil() {
         </p>
       </div>
 
-      {esAdmin && (
+      {soyAdmin && (
         <>
           <h2 style={{ marginBottom: 12 }}>Cuentas registradas</h2>
 
@@ -93,15 +124,16 @@ export default function Perfil() {
                   <th>Correo</th>
                   <th>Rol</th>
                   <th>Veterinario asociado</th>
+                  <th aria-hidden="true"></th>
                 </tr>
               </thead>
               <tbody>
                 {cargando && (
-                  <tr><td colSpan={3} className="empty-hint">Cargando…</td></tr>
+                  <tr><td colSpan={4} className="empty-hint">Cargando…</td></tr>
                 )}
 
                 {!cargando && usuarios.length === 0 && (
-                  <tr><td colSpan={3} className="empty-hint">No hay cuentas registradas.</td></tr>
+                  <tr><td colSpan={4} className="empty-hint">No hay cuentas registradas.</td></tr>
                 )}
 
                 {usuarios.map((u) => (
@@ -114,6 +146,20 @@ export default function Perfil() {
                     </td>
                     <td>{rolLegible(u.rol)}</td>
                     <td>{u.veterinario?.nombre || '—'}</td>
+                    <td>
+                      {u.idUsuario !== sesion?.idUsuario && (
+                        <div className="row-actions">
+                          <button
+                            type="button"
+                            className="icon-btn icon-btn-danger"
+                            onClick={() => { setErrorEliminar(''); setUsuarioAEliminar(u) }}
+                            aria-label="Eliminar cuenta"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -121,10 +167,21 @@ export default function Perfil() {
           </div>
 
           <p className="empty-hint" style={{ marginTop: 10 }}>
-            Esta lista es solo de lectura por ahora — tu backend todavía no tiene
-            endpoints para editar o eliminar cuentas.
+            No puedes eliminar tu propia cuenta ni al último administrador. Para cambiar los datos de una
+            cuenta, elimínala y créala de nuevo.
           </p>
         </>
+      )}
+
+      {usuarioAEliminar && (
+        <ConfirmModal
+          titulo="Eliminar cuenta"
+          mensaje={`¿Seguro que quieres eliminar la cuenta "${usuarioAEliminar.email}"? Esta persona ya no podrá iniciar sesión.`}
+          error={errorEliminar}
+          confirmando={eliminando}
+          onConfirm={confirmarEliminar}
+          onCancel={() => setUsuarioAEliminar(null)}
+        />
       )}
     </div>
   )

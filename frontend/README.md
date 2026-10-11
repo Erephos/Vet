@@ -34,8 +34,14 @@ src/
 │   ├── layout.css, auth.css, modal.css, dashboard.css              (por área)
 │   ├── pages/                  Home, Login, Duenos, Servicios, Catalogos, Reportes, Perfil
 │   └── components/             DetalleConsultaModal
-└── lib/session.js  Sesión guardada en localStorage
+├── lib/session.js  Sesión (usuario + token JWT) en localStorage, vigencia del token y esAdmin()
+└── lib/errores.js  mensajeDeError(): muestra el motivo que explica el backend cuando rechaza un dato (400)
 ```
+
+Seguridad: `services/api.js` es el único lugar que envía el token (`Authorization: Bearer`) y,
+si el backend responde 401, cierra la sesión y manda al login. `RequireAuth` protege las rutas
+(`soloAdmin` para las exclusivas del administrador) y los botones de modificar se ocultan al veterinario.
+La seguridad real está en el backend; ocultar botones es solo comodidad (ver `backend/README.md`).
 
 Regla del proyecto: una page importa su CSS y sus services; si necesita datos, los pide
 a un service, nunca hace `fetch` directo.

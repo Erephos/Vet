@@ -6,6 +6,7 @@ import {
   agregarDetalle,
   eliminarDetalle,
 } from '../services/detalleConsultaServicioService.js'
+import { mensajeDeError } from '../lib/errores.js'
 import '../styles/components/DetalleConsultaModal.css'
 
 export default function DetalleConsultaModal({ consulta, servicios, onClose, onCambio }) {
@@ -73,7 +74,7 @@ export default function DetalleConsultaModal({ consulta, servicios, onClose, onC
       onCambio?.()
     } catch (err) {
       console.error('Error agregando servicio:', err)
-      setErrorForm('No se pudo agregar el servicio. Inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo agregar el servicio. Inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }

@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Consulta;
 import com.Vet.backend.services.ConsultaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +40,13 @@ public class ConsultaController {
     }
 
     @PostMapping
-    public ResponseEntity<Consulta> crear(@RequestBody Consulta consulta) {
+    public ResponseEntity<Consulta> crear(@Valid @RequestBody Consulta consulta) {
         Consulta guardada = consultaService.save(consulta);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Consulta> actualizar(@PathVariable Integer id, @RequestBody Consulta consulta) {
+    public ResponseEntity<Consulta> actualizar(@PathVariable Integer id, @Valid @RequestBody Consulta consulta) {
         if (!consultaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Raza;
 import com.Vet.backend.services.RazaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class RazaController {
     }
 
     @PostMapping
-    public ResponseEntity<Raza> crear(@RequestBody Raza raza) {
+    public ResponseEntity<Raza> crear(@Valid @RequestBody Raza raza) {
         Raza guardada = razaService.save(raza);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Raza> actualizar(@PathVariable Integer id, @RequestBody Raza raza) {
+    public ResponseEntity<Raza> actualizar(@PathVariable Integer id, @Valid @RequestBody Raza raza) {
         if (!razaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

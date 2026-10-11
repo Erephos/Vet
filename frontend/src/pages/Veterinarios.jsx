@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { esAdmin } from '../lib/session.js'
+import { mensajeDeError } from '../lib/errores.js'
 import { obtenerVeterinarios, crearVeterinario, actualizarVeterinario, eliminarVeterinario } from '../services/veterinariosService.js'
 
 const FORM_VACIO = { nombre: '', especialidad: '', telefono: '' }
 
 export default function Veterinarios() {
+  // El veterinario puede consultar este listado pero solo el administrador lo modifica.
+  const puedeEditar = esAdmin()
+
   const [veterinarios, setVeterinarios] = useState([])
   const [busqueda, setBusqueda] = useState('')
   const [cargando, setCargando] = useState(true)
@@ -87,7 +92,7 @@ export default function Veterinarios() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando veterinario:', err)
-      setErrorForm('No se pudo guardar el veterinario. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar el veterinario. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }
@@ -116,9 +121,11 @@ export default function Veterinarios() {
           <h1 className="page-title">Veterinarios</h1>
           <p className="page-subtitle">{cargando ? '…' : `${veterinarios.length} registros`}</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
-          <Plus size={16} /> Agregar veterinario
-        </button>
+        {puedeEditar && (
+          <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
+            <Plus size={16} /> Agregar veterinario
+          </button>
+        )}
       </div>
 
       <div className="table-search">
@@ -162,14 +169,16 @@ export default function Veterinarios() {
                 <td>{v.especialidad || '—'}</td>
                 <td>{v.telefono || '—'}</td>
                 <td>
-                  <div className="row-actions">
-                    <button type="button" className="icon-btn" onClick={() => abrirModalEditar(v)} aria-label="Editar">
-                      <Pencil size={16} />
-                    </button>
-                    <button type="button" className="icon-btn icon-btn-danger" onClick={() => { setErrorEliminar(''); setVetAEliminar(v) }} aria-label="Eliminar">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                  {puedeEditar && (
+                    <div className="row-actions">
+                      <button type="button" className="icon-btn" onClick={() => abrirModalEditar(v)} aria-label="Editar">
+                        <Pencil size={16} />
+                      </button>
+                      <button type="button" className="icon-btn icon-btn-danger" onClick={() => { setErrorEliminar(''); setVetAEliminar(v) }} aria-label="Eliminar">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

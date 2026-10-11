@@ -17,7 +17,14 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/agregar-cuenta" element={<AgregarCuenta />} />
+      <Route
+        path="/agregar-cuenta"
+        element={
+          <RequireAuth soloAdmin>
+            <AgregarCuenta />
+          </RequireAuth>
+        }
+      />
 
       <Route
         element={

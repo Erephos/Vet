@@ -6,6 +6,7 @@ import DetalleDuenoModal from '../components/DetalleDuenoModal.jsx'
 import { obtenerDuenos, crearDueno, actualizarDueno, eliminarDueno } from '../services/duenosService.js'
 import { obtenerMascotas } from '../services/mascotasService.js'
 import '../styles/pages/Duenos.css'
+import { mensajeDeError } from '../lib/errores.js'
 
 const FORM_VACIO = { nombre: '', telefono: '', direccion: '' }
 
@@ -107,7 +108,7 @@ export default function Duenos() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando dueño:', err)
-      setErrorForm('No se pudo guardar el dueño. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar el dueño. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }

@@ -2,12 +2,17 @@ import { useEffect, useState } from 'react'
 import { Tag, Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import { esAdmin } from '../lib/session.js'
+import { mensajeDeError } from '../lib/errores.js'
 import { obtenerServicios, crearServicio, actualizarServicio, eliminarServicio } from '../services/serviciosService.js'
 import '../styles/pages/Servicios.css'
 
 const FORM_VACIO = { nombreServicio: '', precio: '' }
 
 export default function Servicios() {
+  // El veterinario puede consultar este listado pero solo el administrador lo modifica.
+  const puedeEditar = esAdmin()
+
   const [servicios, setServicios] = useState([])
   const [busqueda, setBusqueda] = useState('')
   const [cargando, setCargando] = useState(true)
@@ -79,7 +84,7 @@ export default function Servicios() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando servicio:', err)
-      setErrorForm('No se pudo guardar el servicio. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar el servicio. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }
@@ -108,9 +113,11 @@ export default function Servicios() {
           <h1 className="page-title">Servicios</h1>
           <p className="page-subtitle">{cargando ? '…' : `${servicios.length} registros`}</p>
         </div>
-        <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
-          <Plus size={16} /> Agregar servicio
-        </button>
+        {puedeEditar && (
+          <button type="button" className="btn-submit btn-inline" onClick={abrirModalAgregar}>
+            <Plus size={16} /> Agregar servicio
+          </button>
+        )}
       </div>
 
       <div className="table-search">
@@ -152,14 +159,16 @@ export default function Servicios() {
                 </td>
                 <td>S/ {Number(s.precio).toFixed(2)}</td>
                 <td>
-                  <div className="row-actions">
-                    <button type="button" className="icon-btn" onClick={() => abrirModalEditar(s)} aria-label="Editar">
-                      <Pencil size={16} />
-                    </button>
-                    <button type="button" className="icon-btn icon-btn-danger" onClick={() => { setErrorEliminar(''); setServicioAEliminar(s) }} aria-label="Eliminar">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                  {puedeEditar && (
+                    <div className="row-actions">
+                      <button type="button" className="icon-btn" onClick={() => abrirModalEditar(s)} aria-label="Editar">
+                        <Pencil size={16} />
+                      </button>
+                      <button type="button" className="icon-btn icon-btn-danger" onClick={() => { setErrorEliminar(''); setServicioAEliminar(s) }} aria-label="Eliminar">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

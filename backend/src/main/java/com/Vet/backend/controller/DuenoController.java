@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Dueno;
 import com.Vet.backend.services.DuenoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,13 @@ public class DuenoController {
     }
 
     @PostMapping
-    public ResponseEntity<Dueno> crear(@RequestBody Dueno dueno) {
+    public ResponseEntity<Dueno> crear(@Valid @RequestBody Dueno dueno) {
         Dueno guardado = duenoService.save(dueno);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Dueno> actualizar(@PathVariable Integer id, @RequestBody Dueno dueno) {
+    public ResponseEntity<Dueno> actualizar(@PathVariable Integer id, @Valid @RequestBody Dueno dueno) {
         if (!duenoService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

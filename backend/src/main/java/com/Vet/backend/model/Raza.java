@@ -2,6 +2,7 @@ package com.Vet.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +24,11 @@ public class Raza {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_especie", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @NotNull(message = "Debes elegir una especie")
     private Especie especie;
 
     @Column(name = "nombre_raza", nullable = false, length = 100)
+    @NotBlank(message = "El nombre de la raza es obligatorio")
+    @Size(max = 100, message = "El nombre de la raza no puede superar los 100 caracteres")
     private String nombreRaza;
 }

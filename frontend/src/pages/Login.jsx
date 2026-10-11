@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import BrandPanel from '../components/BrandPanel.jsx'
 import HeaderBrand from '../components/HeaderBrand.jsx'
 import { guardarSesion } from '../lib/session.js'
@@ -22,14 +22,10 @@ export default function Login() {
     setMensaje({ texto: '', tipo: '' })
 
     try {
-      // POST /api/usuarios/login, body {email, password}, responde el Usuario completo.
-      const usuario = await iniciarSesion(email, password)
+      // POST /api/usuarios/login responde { token, usuario } (el usuario ya no trae contraseña).
+      const { token, usuario } = await iniciarSesion(email, password)
 
-      // No guardamos el password en localStorage aunque el backend lo
-      // devuelva; no hace falta tenerlo en el navegador para nada.
-      const { password: _password, ...datosUsuario } = usuario
-
-      guardarSesion(datosUsuario)
+      guardarSesion(usuario, token)
       setMensaje({ texto: 'Sesión iniciada correctamente.', tipo: 'success' })
       navigate('/')
     } catch (error) {
@@ -111,10 +107,6 @@ export default function Login() {
               {mensaje.texto}
             </p>
           )}
-
-          <p className="create-account-text">
-            ¿No tienes cuenta? <Link to="/agregar-cuenta" className="create-account-link">Crear una cuenta</Link>
-          </p>
 
           <div className="form-footer">Sistema de gestión veterinaria v2.4.1</div>
         </div>

@@ -1,5 +1,6 @@
 package com.Vet.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,8 @@ public class Usuario {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
+    // WRITE_ONLY: se acepta al crear la cuenta, pero nunca se devuelve en una respuesta JSON.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 

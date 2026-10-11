@@ -2,6 +2,7 @@ package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Mascota;
 import com.Vet.backend.services.MascotaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class MascotaController {
     }
 
     @PostMapping
-    public ResponseEntity<Mascota> crear(@RequestBody Mascota mascota) {
+    public ResponseEntity<Mascota> crear(@Valid @RequestBody Mascota mascota) {
         Mascota guardada = mascotaService.save(mascota);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Mascota> actualizar(@PathVariable Integer id, @RequestBody Mascota mascota) {
+    public ResponseEntity<Mascota> actualizar(@PathVariable Integer id, @Valid @RequestBody Mascota mascota) {
         if (!mascotaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -5,6 +5,7 @@ import HeaderBrand from '../components/HeaderBrand.jsx'
 import { crearUsuario } from '../services/usuariosService.js'
 import { obtenerVeterinarios } from '../services/veterinariosService.js'
 import { ApiError } from '../services/api.js'
+import { mensajeDeError } from '../lib/errores.js'
 import '../styles/auth.css'
 
 export default function AgregarCuenta() {
@@ -71,7 +72,7 @@ export default function AgregarCuenta() {
     try {
       await crearUsuario(nuevoUsuario)
 
-      setMensaje({ texto: '¡Cuenta creada exitosamente! Ya puedes iniciar sesión.', tipo: 'success' })
+      setMensaje({ texto: '¡Cuenta creada exitosamente! El usuario ya puede iniciar sesión.', tipo: 'success' })
       setEmail('')
       setPassword('')
       setConfirmPassword('')
@@ -81,7 +82,7 @@ export default function AgregarCuenta() {
       if (error instanceof ApiError && error.status === 409) {
         setMensaje({ texto: 'Ese correo ya está registrado.', tipo: 'error' })
       } else if (error instanceof ApiError) {
-        setMensaje({ texto: 'Error al crear la cuenta. Verifica los datos.', tipo: 'error' })
+        setMensaje({ texto: mensajeDeError(error, 'Error al crear la cuenta. Verifica los datos.'), tipo: 'error' })
       } else {
         console.error('Error en la petición:', error)
         setMensaje({ texto: 'Error de conexión con el servidor (backend apagado o CORS).', tipo: 'error' })
@@ -101,7 +102,7 @@ export default function AgregarCuenta() {
           <HeaderBrand />
 
           <h1 className="login-title">Crear cuenta</h1>
-          <p className="login-subtitle">Completa los datos para registrar un nuevo usuario</p>
+          <p className="login-subtitle">Solo los administradores pueden registrar nuevos usuarios</p>
 
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="form-group">
@@ -186,7 +187,7 @@ export default function AgregarCuenta() {
           )}
 
           <p className="create-account-text">
-            <Link to="/login" className="create-account-link">Volver al inicio de sesión</Link>
+            <Link to="/perfil" className="create-account-link">Volver al perfil</Link>
           </p>
 
           <div className="form-footer">Sistema de gestión veterinaria v2.4.1</div>

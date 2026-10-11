@@ -6,6 +6,7 @@ import DetalleMascotaModal from '../components/DetalleMascotaModal.jsx'
 import { obtenerMascotas, crearMascota, actualizarMascota, eliminarMascota } from '../services/mascotasService.js'
 import { obtenerDuenos } from '../services/duenosService.js'
 import { obtenerRazas } from '../services/catalogosService.js'
+import { mensajeDeError } from '../lib/errores.js'
 
 const FORM_VACIO = { nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' }
 
@@ -122,7 +123,7 @@ export default function Mascotas() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando mascota:', err)
-      setErrorForm('No se pudo guardar la mascota. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar la mascota. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }

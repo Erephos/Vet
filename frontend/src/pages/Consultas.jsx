@@ -7,6 +7,7 @@ import { obtenerConsultas, crearConsulta, actualizarConsulta, eliminarConsulta }
 import { obtenerMascotas } from '../services/mascotasService.js'
 import { obtenerVeterinarios } from '../services/veterinariosService.js'
 import { obtenerServicios } from '../services/serviciosService.js'
+import { mensajeDeError } from '../lib/errores.js'
 
 const FORM_VACIO = { idMascota: '', idVeterinario: '', fechaHora: '', diagnostico: '', costoBase: '' }
 
@@ -138,7 +139,7 @@ export default function Consultas() {
       await cargarDatos()
     } catch (err) {
       console.error('Error guardando consulta:', err)
-      setErrorForm('No se pudo guardar la consulta. Revisa los datos e inténtalo de nuevo.')
+      setErrorForm(mensajeDeError(err, 'No se pudo guardar la consulta. Revisa los datos e inténtalo de nuevo.'))
     } finally {
       setGuardando(false)
     }
