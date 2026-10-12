@@ -15,3 +15,8 @@ export function actualizarMascota(id, datos) {
 export function eliminarMascota(id) {
   return apiDelete(`/mascotas/${id}`)
 }
+
+// Cuántos datos dependientes se eliminarán junto con este registro: { mascotas, consultas, serviciosAplicados }
+export function obtenerImpactoMascota(id) {
+  return apiGet(`/mascotas/${id}/impacto`)
+}

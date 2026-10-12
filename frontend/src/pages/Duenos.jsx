@@ -3,17 +3,21 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleDuenoModal from '../components/DetalleDuenoModal.jsx'
-import { obtenerDuenos, crearDueno, actualizarDueno, eliminarDueno } from '../services/duenosService.js'
+import { obtenerDuenos, crearDueno, actualizarDueno, eliminarDueno, obtenerImpactoDueno } from '../services/duenosService.js'
 import { obtenerMascotas } from '../services/mascotasService.js'
 import '../styles/pages/Duenos.css'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
+import useImpacto from '../lib/useImpacto.js'
+import { describirImpacto } from '../lib/impacto.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 
 const FORM_VACIO = { nombre: '', telefono: '', direccion: '' }
 
 export default function Duenos() {
   const [duenos, setDuenos] = useState([])
   const [mascotas, setMascotas] = useState([])
-  const [busqueda, setBusqueda] = useState('')
+  const [busqueda, setBusqueda] = useBusqueda()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
@@ -27,6 +31,7 @@ export default function Duenos() {
   const [duenoAEliminar, setDuenoAEliminar] = useState(null)
   const [eliminando, setEliminando] = useState(false)
   const [errorEliminar, setErrorEliminar] = useState('')
+  const [impacto, cargarImpacto] = useImpacto(obtenerImpactoDueno)
 
   const [duenoDetalle, setDuenoDetalle] = useState(null)
 
@@ -58,14 +63,7 @@ export default function Duenos() {
     return conteo
   }, [mascotas])
 
-  const duenosFiltrados = duenos.filter((d) => {
-    const texto = busqueda.trim().toLowerCase()
-    if (!texto) return true
-    return (
-      d.nombre.toLowerCase().includes(texto) ||
-      (d.telefono ?? '').toLowerCase().includes(texto)
-    )
-  })
+  const duenosFiltrados = duenos.filter((d) => coincideBusqueda(busqueda, d.idDueno, [d.nombre, d.telefono]))
 
   function iniciales(nombre) {
     return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
@@ -118,6 +116,7 @@ export default function Duenos() {
     e.stopPropagation()
     setErrorEliminar('')
     setDuenoAEliminar(d)
+    cargarImpacto(d.idDueno)
   }
 
   async function confirmarEliminar() {
@@ -130,7 +129,7 @@ export default function Duenos() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando dueño:', err)
-      setErrorEliminar('No se pudo eliminar. Si este dueño tiene mascotas registradas, primero elimínalas o cámbialas de dueño.')
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
@@ -151,7 +150,7 @@ export default function Duenos() {
       <div className="table-search">
         <input
           type="text"
-          placeholder="Buscar por nombre, teléfono..."
+          placeholder="Buscar por nombre, teléfono o ID..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -163,6 +162,7 @@ export default function Duenos() {
         <table className="data-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Teléfono</th>
               <th>Dirección</th>
@@ -172,15 +172,16 @@ export default function Duenos() {
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={5} className="empty-hint">Cargando…</td></tr>
+              <tr><td colSpan={6} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && duenosFiltrados.length === 0 && (
-              <tr><td colSpan={5} className="empty-hint">No se encontraron dueños.</td></tr>
+              <tr><td colSpan={6} className="empty-hint">No se encontraron dueños.</td></tr>
             )}
 
             {duenosFiltrados.map((d) => (
               <tr key={d.idDueno} className="data-row data-row-clickable" onClick={() => setDuenoDetalle(d)}>
+                <td className="cell-id">{d.idDueno}</td>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar">{iniciales(d.nombre)}</span>
@@ -257,7 +258,7 @@ export default function Duenos() {
       {duenoAEliminar && (
         <ConfirmModal
           titulo="Eliminar dueño"
-          mensaje={`¿Seguro que quieres eliminar a "${duenoAEliminar.nombre}"? Esta acción no se puede deshacer.`}
+          mensaje={`¿Seguro que quieres eliminar a "${duenoAEliminar.nombre}"? ${describirImpacto(impacto)} Esta acción no se puede deshacer.`}
           error={errorEliminar}
           confirmando={eliminando}
           onConfirm={confirmarEliminar}

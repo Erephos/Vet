@@ -10,4 +10,6 @@ import java.util.List;
 public interface MascotaRepository extends JpaRepository<Mascota, Integer> {
 
     List<Mascota> findByDueno_IdDueno(Integer idDueno);
+
+    long countByRaza_IdRaza(Integer idRaza);
 }

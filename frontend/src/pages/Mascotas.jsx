@@ -3,10 +3,14 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleMascotaModal from '../components/DetalleMascotaModal.jsx'
-import { obtenerMascotas, crearMascota, actualizarMascota, eliminarMascota } from '../services/mascotasService.js'
+import { obtenerMascotas, crearMascota, actualizarMascota, eliminarMascota, obtenerImpactoMascota } from '../services/mascotasService.js'
 import { obtenerDuenos } from '../services/duenosService.js'
 import { obtenerRazas } from '../services/catalogosService.js'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
+import useImpacto from '../lib/useImpacto.js'
+import { describirImpacto } from '../lib/impacto.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 
 const FORM_VACIO = { nombre: '', idDueno: '', idRaza: '', fechaNacimiento: '' }
 
@@ -24,7 +28,7 @@ export default function Mascotas() {
   const [mascotas, setMascotas] = useState([])
   const [duenos, setDuenos] = useState([])
   const [razas, setRazas] = useState([])
-  const [busqueda, setBusqueda] = useState('')
+  const [busqueda, setBusqueda] = useBusqueda()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
@@ -37,6 +41,7 @@ export default function Mascotas() {
   const [mascotaAEliminar, setMascotaAEliminar] = useState(null)
   const [eliminando, setEliminando] = useState(false)
   const [errorEliminar, setErrorEliminar] = useState('')
+  const [impacto, cargarImpacto] = useImpacto(obtenerImpactoMascota)
 
   const [mascotaDetalle, setMascotaDetalle] = useState(null)
 
@@ -64,15 +69,9 @@ export default function Mascotas() {
     cargarDatos()
   }, [])
 
-  const mascotasFiltradas = mascotas.filter((m) => {
-    const texto = busqueda.trim().toLowerCase()
-    if (!texto) return true
-    return (
-      m.nombre.toLowerCase().includes(texto) ||
-      (m.dueno?.nombre ?? '').toLowerCase().includes(texto) ||
-      (m.raza?.nombreRaza ?? '').toLowerCase().includes(texto)
-    )
-  })
+  const mascotasFiltradas = mascotas.filter((m) =>
+    coincideBusqueda(busqueda, m.idMascota, [m.nombre, m.dueno?.nombre, m.raza?.nombreRaza]),
+  )
 
   function abrirModalAgregar() {
     setEditandoId(null)
@@ -133,6 +132,7 @@ export default function Mascotas() {
     e.stopPropagation()
     setErrorEliminar('')
     setMascotaAEliminar(m)
+    cargarImpacto(m.idMascota)
   }
 
   async function confirmarEliminar() {
@@ -145,7 +145,7 @@ export default function Mascotas() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando mascota:', err)
-      setErrorEliminar('No se pudo eliminar. Si esta mascota tiene consultas registradas, primero elimínalas.')
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
@@ -170,7 +170,7 @@ export default function Mascotas() {
       <div className="table-search">
         <input
           type="text"
-          placeholder="Buscar por nombre, dueño o raza..."
+          placeholder="Buscar por nombre, dueño, raza o ID..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -182,6 +182,7 @@ export default function Mascotas() {
         <table className="data-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Raza</th>
               <th>Dueño</th>
@@ -191,15 +192,16 @@ export default function Mascotas() {
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={5} className="empty-hint">Cargando…</td></tr>
+              <tr><td colSpan={6} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && mascotasFiltradas.length === 0 && (
-              <tr><td colSpan={5} className="empty-hint">No se encontraron mascotas.</td></tr>
+              <tr><td colSpan={6} className="empty-hint">No se encontraron mascotas.</td></tr>
             )}
 
             {mascotasFiltradas.map((m) => (
               <tr key={m.idMascota} className="data-row data-row-clickable" onClick={() => setMascotaDetalle(m)}>
+                <td className="cell-id">{m.idMascota}</td>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar">{iniciales(m.nombre)}</span>
@@ -297,7 +299,7 @@ export default function Mascotas() {
       {mascotaAEliminar && (
         <ConfirmModal
           titulo="Eliminar mascota"
-          mensaje={`¿Seguro que quieres eliminar a "${mascotaAEliminar.nombre}"? Esta acción no se puede deshacer.`}
+          mensaje={`¿Seguro que quieres eliminar a "${mascotaAEliminar.nombre}"? ${describirImpacto(impacto)} Esta acción no se puede deshacer.`}
           error={errorEliminar}
           confirmando={eliminando}
           onConfirm={confirmarEliminar}

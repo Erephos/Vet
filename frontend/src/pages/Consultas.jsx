@@ -3,11 +3,15 @@ import { Pencil, Trash2, Plus } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import DetalleConsultaModal from '../components/DetalleConsultaModal.jsx'
-import { obtenerConsultas, crearConsulta, actualizarConsulta, eliminarConsulta } from '../services/consultasService.js'
+import { obtenerConsultas, crearConsulta, actualizarConsulta, eliminarConsulta, obtenerImpactoConsulta } from '../services/consultasService.js'
 import { obtenerMascotas } from '../services/mascotasService.js'
 import { obtenerVeterinarios } from '../services/veterinariosService.js'
 import { obtenerServicios } from '../services/serviciosService.js'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
+import useImpacto from '../lib/useImpacto.js'
+import { describirImpacto } from '../lib/impacto.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 
 const FORM_VACIO = { idMascota: '', idVeterinario: '', fechaHora: '', diagnostico: '', costoBase: '' }
 
@@ -36,7 +40,7 @@ export default function Consultas() {
   const [mascotas, setMascotas] = useState([])
   const [veterinarios, setVeterinarios] = useState([])
   const [servicios, setServicios] = useState([])
-  const [busqueda, setBusqueda] = useState('')
+  const [busqueda, setBusqueda] = useBusqueda()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
@@ -49,6 +53,7 @@ export default function Consultas() {
   const [consultaAEliminar, setConsultaAEliminar] = useState(null)
   const [eliminando, setEliminando] = useState(false)
   const [errorEliminar, setErrorEliminar] = useState('')
+  const [impacto, cargarImpacto] = useImpacto(obtenerImpactoConsulta)
 
   const [consultaSeleccionada, setConsultaSeleccionada] = useState(null)
 
@@ -78,15 +83,9 @@ export default function Consultas() {
     cargarDatos()
   }, [])
 
-  const consultasFiltradas = consultas.filter((c) => {
-    const texto = busqueda.trim().toLowerCase()
-    if (!texto) return true
-    return (
-      (c.mascota?.nombre ?? '').toLowerCase().includes(texto) ||
-      (c.veterinario?.nombre ?? '').toLowerCase().includes(texto) ||
-      (c.diagnostico ?? '').toLowerCase().includes(texto)
-    )
-  })
+  const consultasFiltradas = consultas.filter((c) =>
+    coincideBusqueda(busqueda, c.idConsulta, [c.mascota?.nombre, c.veterinario?.nombre, c.diagnostico]),
+  )
 
   function abrirModalAgregar() {
     setEditandoId(null)
@@ -149,6 +148,7 @@ export default function Consultas() {
     e.stopPropagation()
     setErrorEliminar('')
     setConsultaAEliminar(c)
+    cargarImpacto(c.idConsulta)
   }
 
   async function confirmarEliminar() {
@@ -161,7 +161,7 @@ export default function Consultas() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando consulta:', err)
-      setErrorEliminar('No se pudo eliminar. Si esta consulta tiene servicios aplicados, primero quítalos desde su detalle.')
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
@@ -182,7 +182,7 @@ export default function Consultas() {
       <div className="table-search">
         <input
           type="text"
-          placeholder="Buscar por mascota, veterinario o diagnóstico..."
+          placeholder="Buscar por mascota, veterinario, diagnóstico o ID..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -194,6 +194,7 @@ export default function Consultas() {
         <table className="data-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Fecha y hora</th>
               <th>Mascota</th>
               <th>Veterinario</th>
@@ -203,11 +204,11 @@ export default function Consultas() {
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={5} className="empty-hint">Cargando…</td></tr>
+              <tr><td colSpan={6} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && consultasFiltradas.length === 0 && (
-              <tr><td colSpan={5} className="empty-hint">No se encontraron consultas.</td></tr>
+              <tr><td colSpan={6} className="empty-hint">No se encontraron consultas.</td></tr>
             )}
 
             {consultasFiltradas.map((c) => (
@@ -216,6 +217,7 @@ export default function Consultas() {
                 className="data-row data-row-clickable"
                 onClick={() => setConsultaSeleccionada(c)}
               >
+                <td className="cell-id">{c.idConsulta}</td>
                 <td>{formatearFechaHora(c.fechaHora)}</td>
                 <td>{c.mascota?.nombre || '—'}</td>
                 <td>{c.veterinario?.nombre || '—'}</td>
@@ -321,7 +323,7 @@ export default function Consultas() {
       {consultaAEliminar && (
         <ConfirmModal
           titulo="Eliminar consulta"
-          mensaje={`¿Seguro que quieres eliminar la consulta de "${consultaAEliminar.mascota?.nombre ?? 'esta mascota'}"? Esta acción no se puede deshacer.`}
+          mensaje={`¿Seguro que quieres eliminar la consulta de "${consultaAEliminar.mascota?.nombre ?? 'esta mascota'}"? ${describirImpacto(impacto)} Esta acción no se puede deshacer.`}
           error={errorEliminar}
           confirmando={eliminando}
           onConfirm={confirmarEliminar}

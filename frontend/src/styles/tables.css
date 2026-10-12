@@ -27,6 +27,14 @@
   color: #2c332f;
 }
 
+.data-table .cell-id {
+  width: 1%;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #8a9a93;
+  font-variant-numeric: tabular-nums;
+}
+
 .data-row:last-child td { border-bottom: none; }
 
 .row-person {

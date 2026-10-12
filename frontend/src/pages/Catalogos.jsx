@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import { esAdmin } from '../lib/session.js'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
 import {
   obtenerEspecies,
   obtenerRazas,
@@ -14,6 +14,8 @@ import {
   actualizarEspecie,
   eliminarEspecie,
 } from '../services/catalogosService.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 import '../styles/pages/Catalogos.css'
 
 export default function Catalogos() {
@@ -21,6 +23,7 @@ export default function Catalogos() {
   const puedeEditar = esAdmin()
 
   const [pestana, setPestana] = useState('razas')
+  const [busqueda, setBusqueda] = useBusqueda()
 
   const [especies, setEspecies] = useState([])
   const [razas, setRazas] = useState([])
@@ -154,15 +157,18 @@ export default function Catalogos() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando:', err)
-      setErrorEliminar(
-        itemAEliminar.tipo === 'raza'
-          ? 'No se pudo eliminar. Si esta raza ya tiene mascotas registradas, primero cámbialas de raza.'
-          : 'No se pudo eliminar. Si esta especie tiene razas registradas, primero elimínalas.',
-      )
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
   }
+
+  const razasFiltradas = razas.filter((r) =>
+    coincideBusqueda(busqueda, r.idRaza, [r.nombreRaza, r.especie?.nombreEspecie]),
+  )
+  const especiesFiltradas = especies.filter((esp) =>
+    coincideBusqueda(busqueda, esp.idEspecie, [esp.nombreEspecie]),
+  )
 
   return (
     <div className="page-duenos">
@@ -195,6 +201,15 @@ export default function Catalogos() {
         </button>
       </div>
 
+      <div className="table-search">
+        <input
+          type="text"
+          placeholder={pestana === 'razas' ? 'Buscar por raza, especie o ID...' : 'Buscar por especie o ID...'}
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      </div>
+
       {error && <p className="form-message form-message-error">{error}</p>}
 
       <div className="panel panel-table">
@@ -202,18 +217,20 @@ export default function Catalogos() {
           <table className="data-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Raza</th>
                 <th>Especie</th>
                 <th aria-hidden="true"></th>
               </tr>
             </thead>
             <tbody>
-              {cargando && <tr><td colSpan={3} className="empty-hint">Cargando…</td></tr>}
-              {!cargando && razas.length === 0 && (
-                <tr><td colSpan={3} className="empty-hint">No hay razas registradas.</td></tr>
+              {cargando && <tr><td colSpan={4} className="empty-hint">Cargando…</td></tr>}
+              {!cargando && razasFiltradas.length === 0 && (
+                <tr><td colSpan={4} className="empty-hint">{razas.length === 0 ? 'No hay razas registradas.' : 'No se encontraron razas.'}</td></tr>
               )}
-              {razas.map((r) => (
+              {razasFiltradas.map((r) => (
                 <tr key={r.idRaza} className="data-row">
+                  <td className="cell-id">{r.idRaza}</td>
                   <td>{r.nombreRaza}</td>
                   <td>{r.especie?.nombreEspecie || '—'}</td>
                   <td>
@@ -241,17 +258,19 @@ export default function Catalogos() {
           <table className="data-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Especie</th>
                 <th aria-hidden="true"></th>
               </tr>
             </thead>
             <tbody>
-              {cargando && <tr><td colSpan={2} className="empty-hint">Cargando…</td></tr>}
-              {!cargando && especies.length === 0 && (
-                <tr><td colSpan={2} className="empty-hint">No hay especies registradas.</td></tr>
+              {cargando && <tr><td colSpan={3} className="empty-hint">Cargando…</td></tr>}
+              {!cargando && especiesFiltradas.length === 0 && (
+                <tr><td colSpan={3} className="empty-hint">{especies.length === 0 ? 'No hay especies registradas.' : 'No se encontraron especies.'}</td></tr>
               )}
-              {especies.map((esp) => (
+              {especiesFiltradas.map((esp) => (
                 <tr key={esp.idEspecie} className="data-row">
+                  <td className="cell-id">{esp.idEspecie}</td>
                   <td>{esp.nombreEspecie}</td>
                   <td>
                     {puedeEditar && (

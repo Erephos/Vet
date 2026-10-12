@@ -19,3 +19,8 @@ export function eliminarConsulta(id) {
 export function obtenerConsultasPorMascota(idMascota) {
   return apiGet(`/consultas/mascota/${idMascota}`)
 }
+
+// Cuántos datos dependientes se eliminarán junto con este registro: { mascotas, consultas, serviciosAplicados }
+export function obtenerImpactoConsulta(id) {
+  return apiGet(`/consultas/${id}/impacto`)
+}

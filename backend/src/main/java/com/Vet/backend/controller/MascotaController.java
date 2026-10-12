@@ -1,6 +1,8 @@
 package com.Vet.backend.controller;
 
+import com.Vet.backend.dto.ImpactoEliminacionDTO;
 import com.Vet.backend.model.Mascota;
+import com.Vet.backend.services.EliminacionService;
 import com.Vet.backend.services.MascotaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class MascotaController {
 
     @Autowired
     private MascotaService mascotaService;
+
+    @Autowired
+    private EliminacionService eliminacionService;
 
     @GetMapping
     public List<Mascota> listar() {
@@ -49,12 +54,21 @@ public class MascotaController {
         return ResponseEntity.ok(mascotaService.save(mascota));
     }
 
+    // Qué otros datos se eliminarán junto con este registro (para avisar antes de confirmar).
+    @GetMapping("/{id}/impacto")
+    public ResponseEntity<ImpactoEliminacionDTO> impacto(@PathVariable Integer id) {
+        if (!mascotaService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(eliminacionService.impactoMascota(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (!mascotaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        mascotaService.deleteById(id);
+        eliminacionService.eliminarMascota(id);
         return ResponseEntity.noContent().build();
     }
 }

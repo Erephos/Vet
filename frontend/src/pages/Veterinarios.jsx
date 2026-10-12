@@ -3,8 +3,10 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import { esAdmin } from '../lib/session.js'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
 import { obtenerVeterinarios, crearVeterinario, actualizarVeterinario, eliminarVeterinario } from '../services/veterinariosService.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 
 const FORM_VACIO = { nombre: '', especialidad: '', telefono: '' }
 
@@ -13,7 +15,7 @@ export default function Veterinarios() {
   const puedeEditar = esAdmin()
 
   const [veterinarios, setVeterinarios] = useState([])
-  const [busqueda, setBusqueda] = useState('')
+  const [busqueda, setBusqueda] = useBusqueda()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
@@ -43,14 +45,9 @@ export default function Veterinarios() {
     cargarDatos()
   }, [])
 
-  const veterinariosFiltrados = veterinarios.filter((v) => {
-    const texto = busqueda.trim().toLowerCase()
-    if (!texto) return true
-    return (
-      v.nombre.toLowerCase().includes(texto) ||
-      (v.especialidad ?? '').toLowerCase().includes(texto)
-    )
-  })
+  const veterinariosFiltrados = veterinarios.filter((v) =>
+    coincideBusqueda(busqueda, v.idVeterinario, [v.nombre, v.especialidad]),
+  )
 
   function iniciales(nombre) {
     return nombre.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
@@ -108,7 +105,7 @@ export default function Veterinarios() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando veterinario:', err)
-      setErrorEliminar('No se pudo eliminar. Si tiene consultas o una cuenta de usuario asociada, primero hay que desvincularlas.')
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
@@ -131,7 +128,7 @@ export default function Veterinarios() {
       <div className="table-search">
         <input
           type="text"
-          placeholder="Buscar por nombre o especialidad..."
+          placeholder="Buscar por nombre, especialidad o ID..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -143,6 +140,7 @@ export default function Veterinarios() {
         <table className="data-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Especialidad</th>
               <th>Teléfono</th>
@@ -151,15 +149,16 @@ export default function Veterinarios() {
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={4} className="empty-hint">Cargando…</td></tr>
+              <tr><td colSpan={5} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && veterinariosFiltrados.length === 0 && (
-              <tr><td colSpan={4} className="empty-hint">No se encontraron veterinarios.</td></tr>
+              <tr><td colSpan={5} className="empty-hint">No se encontraron veterinarios.</td></tr>
             )}
 
             {veterinariosFiltrados.map((v) => (
               <tr key={v.idVeterinario} className="data-row">
+                <td className="cell-id">{v.idVeterinario}</td>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar">{iniciales(v.nombre)}</span>

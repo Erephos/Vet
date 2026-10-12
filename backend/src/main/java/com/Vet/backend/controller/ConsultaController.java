@@ -1,6 +1,8 @@
 package com.Vet.backend.controller;
 
+import com.Vet.backend.dto.ImpactoEliminacionDTO;
 import com.Vet.backend.model.Consulta;
+import com.Vet.backend.services.EliminacionService;
 import com.Vet.backend.services.ConsultaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class ConsultaController {
 
     @Autowired
     private ConsultaService consultaService;
+
+    @Autowired
+    private EliminacionService eliminacionService;
 
     @GetMapping
     public List<Consulta> listar() {
@@ -54,12 +59,21 @@ public class ConsultaController {
         return ResponseEntity.ok(consultaService.save(consulta));
     }
 
+    // Qué otros datos se eliminarán junto con este registro (para avisar antes de confirmar).
+    @GetMapping("/{id}/impacto")
+    public ResponseEntity<ImpactoEliminacionDTO> impacto(@PathVariable Integer id) {
+        if (!consultaService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(eliminacionService.impactoConsulta(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (!consultaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        consultaService.deleteById(id);
+        eliminacionService.eliminarConsulta(id);
         return ResponseEntity.noContent().build();
     }
 }

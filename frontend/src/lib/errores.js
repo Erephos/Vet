@@ -8,3 +8,10 @@ export function mensajeDeError(err, porDefecto) {
   }
   return porDefecto
 }
+
+// Para borrados: si el backend bloqueó la operación (409) y explicó por qué
+// (por ejemplo "3 mascotas usan esta raza"), mostramos ese motivo exacto.
+export function mensajeDeBorrado(err, porDefecto) {
+  if (err && err.status === 409 && err.detalle) return err.detalle
+  return porDefecto
+}

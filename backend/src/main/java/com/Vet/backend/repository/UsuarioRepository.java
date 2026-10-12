@@ -14,4 +14,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     // Método para verificar si el correo ya existe
     boolean existsByEmail(String email);
+
+    // Cuántas cuentas están asociadas a un veterinario
+    long countByVeterinario_IdVeterinario(Integer idVeterinario);
 }

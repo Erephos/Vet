@@ -62,3 +62,25 @@ luego reiniciar el backend: al arrancar la convierte a BCrypt.
 
 Para lanzar un error propio desde un controlador:
 `throw new ResponseStatusException(HttpStatus.CONFLICT, "Motivo en español");`
+
+## Reglas de borrado
+
+Toda la lógica está en `services/EliminacionService.java`. Cada borrado es una sola transacción: si algo falla,
+no se borra nada a medias. Se borra siempre de lo más dependiente a lo menos.
+
+| Al eliminar... | Qué pasa |
+|---|---|
+| Dueño | Se eliminan también sus mascotas, sus consultas y los servicios aplicados |
+| Mascota | Se eliminan también sus consultas y los servicios aplicados |
+| Consulta | Se eliminan también sus servicios aplicados |
+| Raza | **Bloqueado** (409) si hay mascotas que la usan |
+| Especie | **Bloqueado** (409) si tiene razas |
+| Servicio | **Bloqueado** (409) si ya se aplicó en alguna consulta |
+| Veterinario | **Bloqueado** (409) si atendió consultas o tiene cuentas asociadas |
+| Cuenta | No puedes eliminar la tuya ni al último administrador |
+
+Antes de confirmar, el frontend consulta cuántos datos se eliminarán con
+`GET /api/duenos/{id}/impacto`, `/api/mascotas/{id}/impacto` y `/api/consultas/{id}/impacto`
+(responden `{ mascotas, consultas, serviciosAplicados }`).
+
+Los catálogos no se borran en cascada a propósito: eliminar una raza arrastraría a todas las mascotas de esa raza.

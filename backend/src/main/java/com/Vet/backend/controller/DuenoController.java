@@ -1,6 +1,8 @@
 package com.Vet.backend.controller;
 
+import com.Vet.backend.dto.ImpactoEliminacionDTO;
 import com.Vet.backend.model.Dueno;
+import com.Vet.backend.services.EliminacionService;
 import com.Vet.backend.services.DuenoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class DuenoController {
 
     @Autowired
     private DuenoService duenoService;
+
+    @Autowired
+    private EliminacionService eliminacionService;
 
     @GetMapping
     public List<Dueno> listar() {
@@ -44,12 +49,21 @@ public class DuenoController {
         return ResponseEntity.ok(duenoService.save(dueno));
     }
 
+    // Qué otros datos se eliminarán junto con este registro (para avisar antes de confirmar).
+    @GetMapping("/{id}/impacto")
+    public ResponseEntity<ImpactoEliminacionDTO> impacto(@PathVariable Integer id) {
+        if (!duenoService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(eliminacionService.impactoDueno(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (!duenoService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        duenoService.deleteById(id);
+        eliminacionService.eliminarDueno(id);
         return ResponseEntity.noContent().build();
     }
 }

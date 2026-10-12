@@ -10,4 +10,8 @@ import java.util.List;
 public interface DetalleConsultaServicioRepository extends JpaRepository<DetalleConsultaServicio, Integer> {
 
     List<DetalleConsultaServicio> findByConsulta_IdConsulta(Integer idConsulta);
+
+    long countByConsulta_IdConsulta(Integer idConsulta);
+
+    long countByServicio_IdServicio(Integer idServicio);
 }

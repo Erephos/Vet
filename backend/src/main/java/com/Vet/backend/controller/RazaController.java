@@ -1,6 +1,7 @@
 package com.Vet.backend.controller;
 
 import com.Vet.backend.model.Raza;
+import com.Vet.backend.services.EliminacionService;
 import com.Vet.backend.services.RazaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class RazaController {
 
     @Autowired
     private RazaService razaService;
+
+    @Autowired
+    private EliminacionService eliminacionService;
 
     @GetMapping
     public List<Raza> listar() {
@@ -54,7 +58,7 @@ public class RazaController {
         if (!razaService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        razaService.deleteById(id);
+        eliminacionService.eliminarRaza(id);
         return ResponseEntity.noContent().build();
     }
 }

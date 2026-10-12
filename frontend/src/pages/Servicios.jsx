@@ -3,8 +3,10 @@ import { Tag, Plus, Pencil, Trash2 } from 'lucide-react'
 import Modal from '../components/Modal.jsx'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import { esAdmin } from '../lib/session.js'
-import { mensajeDeError } from '../lib/errores.js'
+import { mensajeDeError, mensajeDeBorrado } from '../lib/errores.js'
 import { obtenerServicios, crearServicio, actualizarServicio, eliminarServicio } from '../services/serviciosService.js'
+import useBusqueda from '../lib/useBusqueda.js'
+import { coincideBusqueda } from '../lib/busqueda.js'
 import '../styles/pages/Servicios.css'
 
 const FORM_VACIO = { nombreServicio: '', precio: '' }
@@ -14,7 +16,7 @@ export default function Servicios() {
   const puedeEditar = esAdmin()
 
   const [servicios, setServicios] = useState([])
-  const [busqueda, setBusqueda] = useState('')
+  const [busqueda, setBusqueda] = useBusqueda()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
@@ -45,7 +47,7 @@ export default function Servicios() {
   }, [])
 
   const serviciosFiltrados = servicios.filter((s) =>
-    s.nombreServicio.toLowerCase().includes(busqueda.trim().toLowerCase()),
+    coincideBusqueda(busqueda, s.idServicio, [s.nombreServicio]),
   )
 
   function abrirModalAgregar() {
@@ -100,7 +102,7 @@ export default function Servicios() {
       await cargarDatos()
     } catch (err) {
       console.error('Error eliminando servicio:', err)
-      setErrorEliminar('No se pudo eliminar. Si este servicio ya se aplicó en alguna consulta, no se puede borrar.')
+      setErrorEliminar(mensajeDeBorrado(err, 'No se pudo eliminar. Inténtalo de nuevo.'))
     } finally {
       setEliminando(false)
     }
@@ -123,7 +125,7 @@ export default function Servicios() {
       <div className="table-search">
         <input
           type="text"
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre o ID..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -135,6 +137,7 @@ export default function Servicios() {
         <table className="data-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Servicio</th>
               <th>Precio</th>
               <th aria-hidden="true"></th>
@@ -142,15 +145,16 @@ export default function Servicios() {
           </thead>
           <tbody>
             {cargando && (
-              <tr><td colSpan={3} className="empty-hint">Cargando…</td></tr>
+              <tr><td colSpan={4} className="empty-hint">Cargando…</td></tr>
             )}
 
             {!cargando && serviciosFiltrados.length === 0 && (
-              <tr><td colSpan={3} className="empty-hint">No se encontraron servicios.</td></tr>
+              <tr><td colSpan={4} className="empty-hint">No se encontraron servicios.</td></tr>
             )}
 
             {serviciosFiltrados.map((s) => (
               <tr key={s.idServicio} className="data-row">
+                <td className="cell-id">{s.idServicio}</td>
                 <td>
                   <div className="row-person">
                     <span className="row-avatar row-avatar-icon"><Tag size={15} /></span>

@@ -15,3 +15,8 @@ export function actualizarDueno(id, datos) {
 export function eliminarDueno(id) {
   return apiDelete(`/duenos/${id}`)
 }
+
+// Cuántos datos dependientes se eliminarán junto con este registro: { mascotas, consultas, serviciosAplicados }
+export function obtenerImpactoDueno(id) {
+  return apiGet(`/duenos/${id}/impacto`)
+}
